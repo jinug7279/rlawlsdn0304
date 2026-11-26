@@ -1,0 +1,3209 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPORTS AI – AI 스포츠 동작 분석 시뮬레이션 플랫폼</title>
+    <meta
+      name="description"
+      content="스포츠공학 생체역학 기반의 실시간 인체 관절 시뮬레이션, 6대 관절 각도 계측 및 자세 교정 분석 플랫폼"
+    />
+    <meta property="og:title" content="SPORTS AI – AI 스포츠 동작 분석 시뮬레이션 플랫폼" />
+    <meta
+      property="og:description"
+      content="스포츠공학 생체역학 기반의 실시간 인체 관절 시뮬레이션, 6대 관절 각도 계측 및 자세 교정 분석 플랫폼"
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy-950: #071324;
+        --navy-900: #0b1f3a;
+        --navy-800: #132f56;
+        --blue-600: #2563eb;
+        --blue-700: #1d4ed8;
+        --cyan-600: #0891b2;
+        --cyan-400: #22d3ee;
+        --emerald-700: #047857;
+        --amber-700: #b45309;
+        --red-700: #b91c1c;
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-200: #e2e8f0;
+        --slate-300: #cbd5e1;
+        --slate-400: #94a3b8;
+        --slate-500: #64748b;
+        --slate-600: #475569;
+        --slate-700: #334155;
+        --slate-900: #0f172a;
+        --white: #ffffff;
+        --font-sans: "Plus Jakarta Sans", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: var(--font-sans);
+        background-color: var(--slate-50);
+        color: var(--slate-900);
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.5;
+      }
+
+      button,
+      input,
+      select {
+        font-family: inherit;
+      }
+
+      .mono,
+      .tabular {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .container {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      @media (min-width: 640px) {
+        .container {
+          padding-left: 32px;
+          padding-right: 32px;
+        }
+      }
+
+      /* Top Bar (3-zone contract) */
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--slate-200);
+      }
+
+      .header-inner {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+      }
+
+      .brand-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--navy-900);
+        white-space: nowrap;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+
+      .nav-links {
+        display: none;
+        align-items: center;
+        gap: 28px;
+      }
+
+      @media (min-width: 768px) {
+        .nav-links {
+          display: flex;
+        }
+      }
+
+      .nav-link {
+        position: relative;
+        background: none;
+        border: none;
+        padding: 20px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--slate-600);
+        white-space: nowrap;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: color 0.15s ease;
+      }
+
+      .nav-link:hover {
+        color: var(--navy-900);
+      }
+
+      .nav-link.active {
+        color: var(--navy-900);
+        font-weight: 700;
+      }
+
+      .nav-link.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--navy-900);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 9px 16px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .btn-primary {
+        background: var(--navy-900);
+        color: var(--white);
+      }
+
+      .btn-primary:hover {
+        background: var(--navy-800);
+      }
+
+      .btn-accent {
+        background: var(--blue-700);
+        color: var(--white);
+      }
+
+      .btn-accent:hover {
+        background: var(--blue-600);
+      }
+
+      .btn-secondary {
+        background: var(--slate-100);
+        color: var(--navy-900);
+      }
+
+      .btn-secondary:hover {
+        background: var(--slate-200);
+      }
+
+      .btn-outline {
+        background: var(--white);
+        color: var(--slate-700);
+        border-color: var(--slate-200);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--slate-300);
+        background: var(--slate-50);
+      }
+
+      .btn-outline.active {
+        background: var(--navy-900);
+        color: var(--white);
+        border-color: var(--navy-900);
+      }
+
+      .btn-danger {
+        background: var(--red-700);
+        color: var(--white);
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      .mobile-menu-btn {
+        display: inline-flex;
+        padding: 8px;
+        background: var(--white);
+        border: 1px solid var(--slate-200);
+        border-radius: 8px;
+        color: var(--slate-700);
+        cursor: pointer;
+      }
+
+      @media (min-width: 768px) {
+        .mobile-menu-btn {
+          display: none;
+        }
+      }
+
+      .mobile-drawer {
+        display: none;
+        border-top: 1px solid var(--slate-200);
+        background: var(--white);
+        padding: 10px 16px;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .mobile-drawer.open {
+        display: flex;
+      }
+
+      @media (min-width: 768px) {
+        .mobile-drawer.open {
+          display: none;
+        }
+      }
+
+      /* Page Layout */
+      main {
+        min-height: calc(100vh - 134px);
+      }
+
+      .view {
+        display: none;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      .card {
+        background: var(--white);
+        border: 1px solid var(--slate-200);
+        border-radius: 12px;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        background: var(--white);
+        border-bottom: 1px solid var(--slate-200);
+        padding: 40px 0 48px;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        align-items: stretch;
+      }
+
+      @media (min-width: 1024px) {
+        .hero-grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 44px;
+        }
+      }
+
+      .kicker {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--blue-700);
+        letter-spacing: 0.03em;
+      }
+
+      .hero-title {
+        margin: 10px 0 0;
+        font-size: clamp(32px, 4vw, 48px);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+        color: var(--navy-900);
+        text-wrap: balance;
+      }
+
+      .hero-desc {
+        margin: 14px 0 0;
+        font-size: 15px;
+        color: var(--slate-600);
+        max-width: 600px;
+        line-height: 1.65;
+      }
+
+      .preset-box {
+        margin-top: 24px;
+        background: var(--slate-50);
+        border: 1px solid var(--slate-200);
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .preset-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .preset-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .hero-preview-frame {
+        border: 1px solid var(--slate-200);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #09182e;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 300px;
+      }
+
+      .hero-preview-frame canvas {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        display: block;
+      }
+
+      .preview-caption {
+        padding: 12px 18px;
+        background: var(--navy-950);
+        border-top: 1px solid #1e293b;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--slate-300);
+      }
+
+      /* Section Grid */
+      .section-block {
+        padding-top: 44px;
+      }
+
+      .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--navy-900);
+      }
+
+      .section-sub {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--slate-500);
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      @media (min-width: 640px) {
+        .features-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .features-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .feature-card {
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .icon-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: var(--slate-100);
+        color: var(--navy-900);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .feature-card h3 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--navy-900);
+      }
+
+      .feature-card p {
+        margin: 6px 0 0;
+        font-size: 13px;
+        color: var(--slate-600);
+        line-height: 1.6;
+      }
+
+      /* Recent Records Grid */
+      .records-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      @media (min-width: 768px) {
+        .records-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .records-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .record-card {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .record-thumb {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #09182e;
+        display: block;
+      }
+
+      .record-body {
+        padding: 16px;
+      }
+
+      .record-actions {
+        padding: 10px 16px 14px;
+        border-top: 1px solid var(--slate-100);
+        display: flex;
+        gap: 8px;
+      }
+
+      /* Simulation Studio */
+      .studio-wrap {
+        padding: 28px 0 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .studio-header {
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      @media (min-width: 1024px) {
+        .studio-header {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+
+      .studio-split {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      @media (min-width: 1200px) {
+        .studio-split {
+          grid-template-columns: 7fr 5fr;
+        }
+      }
+
+      .stage-toolbar {
+        padding: 12px 16px;
+        background: var(--slate-50);
+        border-bottom: 1px solid var(--slate-200);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .segmented {
+        display: inline-flex;
+        padding: 3px;
+        background: var(--slate-200);
+        border-radius: 8px;
+        gap: 2px;
+      }
+
+      .seg-btn {
+        border: none;
+        background: transparent;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--slate-600);
+        border-radius: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .seg-btn.active {
+        background: var(--white);
+        color: var(--navy-900);
+        font-weight: 700;
+      }
+
+      .stage-viewport {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #09182e;
+        cursor: pointer;
+      }
+
+      .stage-viewport canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .playback-bar {
+        padding: 16px;
+        border-top: 1px solid var(--slate-200);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .playback-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .range-input {
+        flex: 1;
+        accent-color: var(--navy-900);
+        cursor: pointer;
+      }
+
+      .params-deck {
+        padding: 20px;
+        border-top: 1px solid var(--slate-200);
+        background: var(--slate-50);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .sliders-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px 20px;
+      }
+
+      @media (min-width: 640px) {
+        .sliders-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .slider-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .slider-label {
+        display: flex;
+        justify-content: space-between;
+        color: var(--slate-700);
+        font-weight: 600;
+      }
+
+      .slider-field input[type="range"] {
+        width: 100%;
+        accent-color: var(--navy-900);
+        cursor: pointer;
+      }
+
+      /* Telemetry Table */
+      .telemetry-panel {
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .data-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+      }
+
+      th {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--slate-500);
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--slate-200);
+        white-space: nowrap;
+      }
+
+      td {
+        font-size: 12px;
+        padding: 11px 8px;
+        border-bottom: 1px solid var(--slate-100);
+        vertical-align: middle;
+      }
+
+      .num-right {
+        text-align: right;
+      }
+
+      .keyframes-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .kf-btn {
+        text-align: left;
+        padding: 0;
+        border: 1px solid var(--slate-200);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--slate-50);
+        cursor: pointer;
+        transition: border-color 0.15s ease;
+      }
+
+      .kf-btn:hover {
+        border-color: var(--navy-900);
+      }
+
+      .kf-btn canvas {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: block;
+        background: #09182e;
+      }
+
+      /* Chart Card */
+      .chart-card {
+        padding: 22px;
+      }
+
+      .chart-head {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--slate-100);
+      }
+
+      @media (min-width: 1024px) {
+        .chart-head {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+
+      .chart-hud {
+        min-height: 30px;
+        padding: 8px 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 16px;
+        font-size: 12px;
+        color: var(--slate-600);
+      }
+
+      .chart-svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        cursor: crosshair;
+        user-select: none;
+      }
+
+      /* Diagnostic Report */
+      .report-card {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .report-summary-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      @media (min-width: 1024px) {
+        .report-summary-grid {
+          grid-template-columns: 5fr 7fr;
+        }
+      }
+
+      .drills-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      @media (min-width: 768px) {
+        .drills-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .drill-box {
+        background: var(--slate-50);
+        border: 1px solid var(--slate-200);
+        border-radius: 10px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .status-good {
+        color: var(--emerald-700);
+        font-weight: 700;
+      }
+      .status-warn {
+        color: var(--amber-700);
+        font-weight: 700;
+      }
+      .status-fix {
+        color: var(--red-700);
+        font-weight: 700;
+      }
+
+      /* Compare / History */
+      .select-input,
+      .search-input {
+        padding: 8px 12px;
+        font-size: 12px;
+        background: var(--slate-50);
+        border: 1px solid var(--slate-200);
+        border-radius: 8px;
+        color: var(--slate-900);
+      }
+
+      .toast-msg {
+        padding: 10px 14px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .empty-box {
+        padding: 48px 24px;
+        text-align: center;
+      }
+
+      .site-footer {
+        background: var(--white);
+        border-top: 1px solid var(--slate-200);
+        padding: 22px 0;
+        font-size: 12px;
+        color: var(--slate-500);
+      }
+
+      .footer-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      @media (min-width: 640px) {
+        .footer-inner {
+          flex-direction: row;
+        }
+      }
+    </style>
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <button type="button" class="brand-btn" data-nav="home">SPORTS AI</button>
+
+        <nav class="nav-links" aria-label="주요 메뉴">
+          <button type="button" class="nav-link active" data-nav="home">홈</button>
+          <button type="button" class="nav-link" data-nav="simulation">동작 시뮬레이션</button>
+          <button type="button" class="nav-link" data-nav="compare">기록 비교</button>
+          <button type="button" class="nav-link" data-nav="history">분석 기록</button>
+        </nav>
+
+        <div class="header-actions">
+          <button type="button" class="btn btn-outline btn-sm download-html-btn" id="headerDownloadHtmlBtn" title="단일 index.html 파일 다운로드">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>index.html 다운로드</span>
+          </button>
+          <button type="button" class="btn btn-primary" id="headerStartBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="6,4 20,12 6,20"></polygon>
+            </svg>
+            <span>시뮬레이션 시작</span>
+          </button>
+          <button
+            type="button"
+            class="mobile-menu-btn"
+            id="mobileMenuBtn"
+            aria-label="메뉴 열기"
+            aria-expanded="false"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-drawer" id="mobileDrawer" aria-label="모바일 메뉴">
+        <button type="button" class="btn btn-outline btn-sm" data-nav="home">홈</button>
+        <button type="button" class="btn btn-outline btn-sm" data-nav="simulation">동작 시뮬레이션</button>
+        <button type="button" class="btn btn-outline btn-sm" data-nav="compare">기록 비교</button>
+        <button type="button" class="btn btn-outline btn-sm" data-nav="history">분석 기록</button>
+        <button type="button" class="btn btn-outline btn-sm download-html-btn">index.html 다운로드</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HOME VIEW -->
+      <section id="view-home" class="view active">
+        <div class="hero-section">
+          <div class="container hero-grid">
+            <div>
+              <p class="kicker">스포츠공학 생체역학 · 실시간 운동학 시뮬레이션</p>
+              <h1 class="hero-title">AI 스포츠 동작 분석</h1>
+              <p class="hero-desc">
+                별도의 운동 영상 없이도 종목별 스포츠 동작 시뮬레이션을 실행하고 깊이·상체 기울기·좌우 비대칭
+                변수를 조절하며 어깨·팔꿈치·손목·골반·무릎·발목의 관절 각도와 자세 개선 가이드를 즉시 확인할 수 있습니다.
+              </p>
+
+              <div class="preset-box">
+                <div class="preset-header">
+                  <strong style="font-size: 13px; color: var(--navy-900);">시뮬레이션 종목 선택</strong>
+                  <span id="homePresetViewLabel" style="font-size: 12px; color: var(--slate-500);">측면 3/4 시점</span>
+                </div>
+                <div class="preset-tabs" id="homePresetTabs"></div>
+                <p
+                  id="homePresetDesc"
+                  style="margin: 12px 0 0; font-size: 13px; color: var(--slate-600); line-height: 1.55;"
+                ></p>
+                <div style="margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                  <button type="button" class="btn btn-primary" id="homeLaunchBtn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <polygon points="6,4 20,12 6,20"></polygon>
+                    </svg>
+                    <span id="homeLaunchText">스쿼트 시뮬레이션 실행 및 분석</span>
+                  </button>
+                  <button type="button" class="btn btn-outline download-html-btn" id="heroDownloadHtmlBtn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>index.html 다운로드</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary copy-html-btn" id="heroCopyHtmlBtn">
+                    <span>HTML 코드 복사</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-preview-frame">
+              <canvas id="homePreviewCanvas" width="960" height="540"></canvas>
+              <div class="preview-caption">
+                <strong id="homePreviewCaption" style="color: #fff;">실시간 운동학 프리뷰 · 스쿼트</strong>
+                <span class="mono" style="color: #67e8f9;">6대 관절 실시간 각도 · 33-Point 골격</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container section-block">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">주요 시뮬레이션 & 분석 기능</h2>
+              <p class="section-sub">
+                순운동학(Forward Kinematics) 좌표에서 기하학적으로 산출된 실측 각도와 생체역학 진단을 제공합니다.
+              </p>
+            </div>
+          </div>
+
+          <div class="features-grid">
+            <div class="card feature-card">
+              <div class="icon-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="4" y1="21" x2="4" y2="14"></line>
+                  <line x1="4" y1="10" x2="4" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12" y2="3"></line>
+                  <line x1="20" y1="21" x2="20" y2="16"></line>
+                  <line x1="20" y1="12" x2="20" y2="3"></line>
+                  <line x1="1" y1="14" x2="7" y2="14"></line>
+                  <line x1="9" y1="8" x2="15" y2="8"></line>
+                  <line x1="17" y1="16" x2="23" y2="16"></line>
+                </svg>
+              </div>
+              <div>
+                <h3>자세 파라미터 시뮬레이션</h3>
+                <p>동작 깊이, 상체 전경 편차, 좌우 비대칭, 반복 템포를 실시간 조절해 다양한 자세를 재현합니다.</p>
+              </div>
+            </div>
+
+            <div class="card feature-card">
+              <div class="icon-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <h3>6대 관절 각도 계측</h3>
+                <p>어깨, 팔꿈치, 손목, 골반, 무릎, 발목의 좌·우 각도와 가동범위(ROM), 무게중심선을 계산합니다.</p>
+              </div>
+            </div>
+
+            <div class="card feature-card">
+              <div class="icon-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3>생체역학 자세 진단</h3>
+                <p>측정된 관절 가동범위와 좌우 대칭 편차를 바탕으로 부상 주의 관절과 교정 드릴을 안내합니다.</p>
+              </div>
+            </div>
+
+            <div class="card feature-card">
+              <div class="icon-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <path d="M8 17V11"></path>
+                  <path d="M12 17V7"></path>
+                  <path d="M16 17V13"></path>
+                </svg>
+              </div>
+              <div>
+                <h3>시계열 그래프 · 기록 비교</h3>
+                <p>표준 폼과 불균형 시뮬레이션을 저장해 두 기록의 관절 각도 곡선과 ROM 차이를 정량 비교합니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container section-block" style="padding-bottom: 56px;">
+          <div class="section-head">
+            <div>
+              <h2 class="section-title">최근 분석 기록</h2>
+              <p class="section-sub">브라우저에 저장된 시뮬레이션 분석 결과를 다시 열람하거나 비교할 수 있습니다.</p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="homeViewAllHistoryBtn" style="display: none;">
+              전체 기록 보기 →
+            </button>
+          </div>
+          <div id="homeRecentContainer"></div>
+        </div>
+      </section>
+
+      <!-- SIMULATION & ANALYSIS STUDIO VIEW -->
+      <section id="view-simulation" class="view">
+        <div class="container studio-wrap">
+          <div class="card studio-header">
+            <div>
+              <div class="mono" id="studioMetaLine" style="font-size: 12px; color: var(--slate-500);"></div>
+              <h1 id="studioTitle" style="margin: 4px 0 0; font-size: 24px; font-weight: 800; color: var(--navy-900);">
+                스쿼트 생체역학 시뮬레이션
+              </h1>
+            </div>
+            <div class="preset-tabs" id="studioPresetTabs"></div>
+          </div>
+
+          <div class="studio-split">
+            <!-- Left: Interactive Canvas + Playback + Parameter Sliders -->
+            <div class="card" style="overflow: hidden; display: flex; flex-direction: column;">
+              <div class="stage-toolbar">
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button type="button" class="btn btn-outline btn-sm active" id="toggleSkeletonBtn">관절 골격선</button>
+                  <button type="button" class="btn btn-outline btn-sm active" id="toggleAnglesBtn">실시간 각도 수치</button>
+                  <button type="button" class="btn btn-outline btn-sm active" id="toggleComBtn">무게중심선</button>
+                </div>
+                <div class="segmented" id="studioSideSegmented">
+                  <button type="button" class="seg-btn active" data-side="both">양측</button>
+                  <button type="button" class="seg-btn" data-side="left">좌측(파랑)</button>
+                  <button type="button" class="seg-btn" data-side="right">우측(청록)</button>
+                </div>
+              </div>
+
+              <div class="stage-viewport" id="studioStageViewport">
+                <canvas id="studioCanvas" width="960" height="540"></canvas>
+              </div>
+
+              <div class="playback-bar">
+                <div class="playback-row">
+                  <button type="button" class="btn btn-primary btn-sm" id="playPauseBtn" style="min-width: 78px;">
+                    일시정지
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" id="resetPlayBtn" title="초기화">
+                    초기화
+                  </button>
+                  <button type="button" class="btn btn-outline btn-sm" id="prevFrameBtn" title="이전 프레임">◀</button>
+                  <button type="button" class="btn btn-outline btn-sm" id="nextFrameBtn" title="다음 프레임">▶</button>
+                  <input type="range" class="range-input" id="timelineSlider" min="0" max="5" step="0.01" value="0" />
+                  <span class="mono" id="timeReadout" style="font-size: 12px; color: var(--slate-700);">0.00s / 5.20s</span>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--slate-500);">
+                  <span>
+                    실시간 상체 전경 각도:
+                    <strong class="mono" id="liveTrunkReadout" style="color: var(--navy-900);">-</strong>
+                  </span>
+                  <div style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span>시뮬레이션 배속:</span>
+                    <button type="button" class="btn btn-outline btn-sm rate-btn" data-rate="0.25">0.25x</button>
+                    <button type="button" class="btn btn-outline btn-sm rate-btn" data-rate="0.5">0.5x</button>
+                    <button type="button" class="btn btn-outline btn-sm rate-btn active" data-rate="1">1.0x</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="params-deck">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
+                  <strong style="font-size: 14px; color: var(--navy-900);">생체역학 시뮬레이션 변수 조절</strong>
+                  <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <button type="button" class="btn btn-outline btn-sm" id="scenarioIdealBtn">표준 이상적 폼</button>
+                    <button type="button" class="btn btn-outline btn-sm" id="scenarioLeanBtn">상체 과다 전경</button>
+                    <button type="button" class="btn btn-outline btn-sm" id="scenarioAsymBtn">좌우 불균형</button>
+                  </div>
+                </div>
+
+                <div class="sliders-grid">
+                  <label class="slider-field">
+                    <span class="slider-label">
+                      <span>동작 깊이 / 가동 강도</span>
+                      <span class="mono" id="valDepthPct">90%</span>
+                    </span>
+                    <input type="range" id="sliderDepth" min="45" max="110" step="1" value="90" />
+                  </label>
+
+                  <label class="slider-field">
+                    <span class="slider-label">
+                      <span>상체 전경 편차</span>
+                      <span class="mono" id="valTrunkBias">+6°</span>
+                    </span>
+                    <input type="range" id="sliderTrunk" min="0" max="25" step="1" value="6" />
+                  </label>
+
+                  <label class="slider-field">
+                    <span class="slider-label">
+                      <span>좌우 비대칭 오프셋</span>
+                      <span class="mono" id="valAsymmetry">3%</span>
+                    </span>
+                    <input type="range" id="sliderAsym" min="0" max="25" step="1" value="3" />
+                  </label>
+
+                  <label class="slider-field">
+                    <span class="slider-label">
+                      <span>1회 반복 템포</span>
+                      <span class="mono" id="valTempo">2.6초</span>
+                    </span>
+                    <input type="range" id="sliderTempo" min="0.9" max="4.0" step="0.1" value="2.6" />
+                  </label>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px;">
+                  <span style="font-size: 12px; color: var(--slate-500);">
+                    설정한 시뮬레이션 결과를 저장해 기록 비교에 활용할 수 있습니다.
+                  </span>
+                  <button type="button" class="btn btn-accent" id="saveSimulationBtn">
+                    현재 시뮬레이션 기록 저장
+                  </button>
+                </div>
+                <div id="saveToast" class="toast-msg" style="display: none;"></div>
+              </div>
+            </div>
+
+            <!-- Right: Live 6-Joint Angle & ROM Telemetry -->
+            <div class="card telemetry-panel">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--slate-100);">
+                  <div>
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--navy-900);">
+                      6대 주요 관절 실시간 각도 &amp; ROM
+                    </h2>
+                    <p style="margin: 4px 0 0; font-size: 12px; color: var(--slate-500);">
+                      순운동학 좌표에서 산출되는 실시간 각도 및 가동범위
+                    </p>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 11px; color: var(--slate-400);">평균 상체 기울기</div>
+                    <div class="mono" id="avgTrunkStat" style="font-size: 18px; font-weight: 800; color: var(--navy-900);">-</div>
+                  </div>
+                </div>
+
+                <div class="data-table-wrap" style="margin-top: 8px;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>관절</th>
+                        <th class="num-right">현재 좌</th>
+                        <th class="num-right">현재 우</th>
+                        <th class="num-right">좌 ROM</th>
+                        <th class="num-right">우 ROM</th>
+                        <th class="num-right">좌우 차</th>
+                      </tr>
+                    </thead>
+                    <tbody id="telemetryTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div style="padding-top: 14px; border-top: 1px solid var(--slate-100);">
+                <p style="margin: 0 0 10px; font-size: 12px; font-weight: 700; color: var(--slate-700);">
+                  핵심 구간 스냅샷 (클릭 시 해당 시점 이동)
+                </p>
+                <div class="keyframes-grid" id="keyframesGrid"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time-Series Kinematic Graph -->
+          <div class="card chart-card">
+            <div class="chart-head">
+              <div>
+                <h2 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--navy-900);">
+                  시간별 관절 각도 변화 그래프
+                </h2>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--slate-500);">
+                  그래프를 클릭하면 해당 시점으로 이동합니다 · 실선: 좌측 · 점선: 우측
+                </p>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="chartJointButtons"></div>
+                <div class="segmented" id="chartSideSegmented">
+                  <button type="button" class="seg-btn active" data-side="both">양측</button>
+                  <button type="button" class="seg-btn" data-side="left">좌측</button>
+                  <button type="button" class="seg-btn" data-side="right">우측</button>
+                </div>
+              </div>
+            </div>
+            <div class="chart-hud mono" id="chartHud"></div>
+            <svg id="kinematicSvg" class="chart-svg" viewBox="0 0 960 270" role="img" aria-label="시간별 관절 각도 변화 그래프"></svg>
+          </div>
+
+          <!-- Biomechanical Posture Diagnosis & Improvement Guide -->
+          <div class="card report-card">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--slate-100);">
+              <div>
+                <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--navy-900);">
+                  생체역학 자세 분석 및 개선 가이드
+                </h2>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--slate-500);">
+                  현재 시뮬레이션에서 계측된 6대 관절 가동범위와 좌우 대칭 수치에 근거한 실시간 자세 평가입니다.
+                </p>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="goCompareFromStudioBtn">
+                저장된 기록 비교하기 →
+              </button>
+            </div>
+
+            <div class="report-summary-grid">
+              <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 10px; padding: 18px;">
+                <p style="margin: 0; font-size: 12px; font-weight: 700; color: var(--blue-700);">종합 생체역학 소견</p>
+                <h3 id="reportMovementName" style="margin: 6px 0 8px; font-size: 18px; font-weight: 800; color: var(--navy-900);"></h3>
+                <p id="reportOverallSummary" style="margin: 0; font-size: 14px; color: var(--slate-700); line-height: 1.6;"></p>
+              </div>
+
+              <div style="border: 1px solid var(--slate-200); border-radius: 10px; padding: 18px;">
+                <h3 style="margin: 0 0 10px; font-size: 14px; font-weight: 700; color: var(--navy-900);">
+                  관찰된 주요 동작 특징
+                </h3>
+                <ul id="reportCharacteristics" style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--slate-700);"></ul>
+              </div>
+            </div>
+
+            <div style="border: 1px solid var(--slate-200); border-radius: 10px; overflow: hidden;">
+              <div style="padding: 12px 18px; background: var(--slate-50); border-bottom: 1px solid var(--slate-200);">
+                <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--navy-900);">관절별 정밀 평가</h3>
+              </div>
+              <div class="data-table-wrap">
+                <table>
+                  <thead>
+                    <tr style="background: #fff;">
+                      <th style="padding-left: 18px;">관절 / 부위</th>
+                      <th>상태</th>
+                      <th>실측 ROM · 평균</th>
+                      <th>관찰 소견</th>
+                      <th style="padding-right: 18px;">교정 포인트</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportJointEvalBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div>
+              <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--navy-900);">
+                자세 개선 포인트 및 추천 교정 드릴
+              </h3>
+              <div class="drills-grid" id="reportDrillsGrid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMPARE & HISTORY VIEW -->
+      <section id="view-compare-history" class="view">
+        <div class="container studio-wrap" id="compareHistoryContainer"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <strong style="color: var(--navy-900);">SPORTS AI · AI 스포츠 동작 시뮬레이션 플랫폼</strong>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+          <span>순운동학 관절 시뮬레이션 및 스포츠공학 생체역학 계측 기반</span>
+          <button type="button" class="btn btn-outline btn-sm download-html-btn" id="footerDownloadHtmlBtn">
+            <span>index.html 다운로드</span>
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        "use strict";
+
+        // Capture pristine DOM snapshot before any runtime mutations so offline file:// downloads remain clean
+        var PRISTINE_HTML_SNAPSHOT = "<!doctype html>\n" + document.documentElement.outerHTML;
+        var CACHED_SOURCE_HTML = null;
+
+        if ((window.location.protocol === "http:" || window.location.protocol === "https:") && typeof fetch === "function") {
+          fetch("./index.html", { cache: "no-store" })
+            .then(function (res) { return res.ok ? res.text() : null; })
+            .then(function (txt) {
+              if (txt && txt.indexOf("SPORTS AI") !== -1) {
+                CACHED_SOURCE_HTML = txt;
+              }
+            })
+            .catch(function () {});
+        }
+
+        var STAGE_W = 960;
+        var STAGE_H = 540;
+        var ASPECT_RATIO = STAGE_W / STAGE_H;
+        var STORAGE_KEY = "sports_ai_sim_sessions_v1";
+
+        var JOINT_ORDER = ["shoulder", "elbow", "wrist", "hip", "knee", "ankle"];
+        var CHART_JOINTS = ["knee", "hip", "ankle", "shoulder", "elbow", "wrist"];
+
+        var JOINT_META = {
+          shoulder: { labelKo: "어깨", colorLeft: "#2563EB", colorRight: "#60A5FA", desc: "골반-어깨-팔꿈치 각도" },
+          elbow: { labelKo: "팔꿈치", colorLeft: "#0891B2", colorRight: "#22D3EE", desc: "어깨-팔꿈치-손목 각도" },
+          wrist: { labelKo: "손목", colorLeft: "#4F46E5", colorRight: "#818CF8", desc: "팔꿈치-손목-손가락 각도" },
+          hip: { labelKo: "골반", colorLeft: "#0F766E", colorRight: "#2DD4BF", desc: "어깨-골반-무릎 각도" },
+          knee: { labelKo: "무릎", colorLeft: "#D97706", colorRight: "#FBBF24", desc: "골반-무릎-발목 각도" },
+          ankle: { labelKo: "발목", colorLeft: "#DC2626", colorRight: "#F87171", desc: "무릎-발목-발끝 각도" }
+        };
+
+        var MOVEMENT_PRESETS = [
+          {
+            id: "squat",
+            nameKo: "스쿼트",
+            viewLabel: "측면 3/4 시점",
+            description: "고관절·무릎·발목의 동시 굴곡 및 상체 중립 정렬 시뮬레이션",
+            defaultParams: { presetId: "squat", depthPct: 90, trunkLeanBiasDeg: 6, asymmetryPct: 3, tempoSec: 2.6, cycles: 2 }
+          },
+          {
+            id: "sprint",
+            nameKo: "스프린트 러닝",
+            viewLabel: "측면 주법 시점",
+            description: "지지기·추진기·체공기 보행 주기와 상하지 교차 스윙 시뮬레이션",
+            defaultParams: { presetId: "sprint", depthPct: 92, trunkLeanBiasDeg: 10, asymmetryPct: 4, tempoSec: 1.1, cycles: 3 }
+          },
+          {
+            id: "deadlift",
+            nameKo: "데드리프트",
+            viewLabel: "측면 힙힌지 시점",
+            description: "고관절 경첩 움직임, 척추 중립 유지 및 수직 바 경로 시뮬레이션",
+            defaultParams: { presetId: "deadlift", depthPct: 88, trunkLeanBiasDeg: 5, asymmetryPct: 3, tempoSec: 2.8, cycles: 2 }
+          },
+          {
+            id: "golf_swing",
+            nameKo: "골프 스윙",
+            viewLabel: "정면 타석 시점",
+            description: "어드레스·백스윙 코킹·임팩트·팔로우스루 회전 역학 시뮬레이션",
+            defaultParams: { presetId: "golf_swing", depthPct: 95, trunkLeanBiasDeg: 14, asymmetryPct: 5, tempoSec: 2.0, cycles: 2 }
+          },
+          {
+            id: "lunge",
+            nameKo: "포워드 런지",
+            viewLabel: "측면 스플릿 시점",
+            description: "전방 지지 다리 무릎·발목 제어 및 후방 고관절 신전 시뮬레이션",
+            defaultParams: { presetId: "lunge", depthPct: 90, trunkLeanBiasDeg: 5, asymmetryPct: 4, tempoSec: 2.4, cycles: 2 }
+          }
+        ];
+
+        var POSE_CONNECTIONS = [
+          [11, 12, "center"],
+          [11, 23, "left"],
+          [12, 24, "right"],
+          [23, 24, "center"],
+          [11, 13, "left"],
+          [13, 15, "left"],
+          [15, 19, "left"],
+          [12, 14, "right"],
+          [14, 16, "right"],
+          [16, 20, "right"],
+          [23, 25, "left"],
+          [25, 27, "left"],
+          [27, 31, "left"],
+          [24, 26, "right"],
+          [26, 28, "right"],
+          [28, 32, "right"]
+        ];
+
+        var JOINT_LANDMARK_MAP = [
+          { joint: "shoulder", side: "left", idx: 11 },
+          { joint: "shoulder", side: "right", idx: 12 },
+          { joint: "elbow", side: "left", idx: 13 },
+          { joint: "elbow", side: "right", idx: 14 },
+          { joint: "wrist", side: "left", idx: 15 },
+          { joint: "wrist", side: "right", idx: 16 },
+          { joint: "hip", side: "left", idx: 23 },
+          { joint: "hip", side: "right", idx: 24 },
+          { joint: "knee", side: "left", idx: 25 },
+          { joint: "knee", side: "right", idx: 26 },
+          { joint: "ankle", side: "left", idx: 27 },
+          { joint: "ankle", side: "right", idx: 28 }
+        ];
+
+        var state = {
+          activeTab: "home",
+          homePresetId: "squat",
+          params: Object.assign({}, MOVEMENT_PRESETS[0].defaultParams),
+          isPlaying: true,
+          currentTimeSec: 0,
+          playbackRate: 1,
+          showSkeleton: true,
+          showAngles: true,
+          showComLine: true,
+          sideFilter: "both",
+          chartJoints: ["knee", "hip", "ankle"],
+          chartHoverIdx: null,
+          sessions: [],
+          compareAId: null,
+          compareBId: null,
+          compareJoint: "knee",
+          compareSide: "left",
+          historyQuery: "",
+          confirmDeleteId: null
+        };
+
+        // Math helpers
+        function degToRad(d) {
+          return (d * Math.PI) / 180;
+        }
+        function lerp(a, b, t) {
+          return a + (b - a) * t;
+        }
+        function smoothBell(phase) {
+          return 0.5 - 0.5 * Math.cos(phase * Math.PI * 2);
+        }
+        function round1(n) {
+          return Math.round(n * 10) / 10;
+        }
+
+        function calcAngleDeg(a, b, c) {
+          var v1x = (a.x - b.x) * ASPECT_RATIO;
+          var v1y = a.y - b.y;
+          var v2x = (c.x - b.x) * ASPECT_RATIO;
+          var v2y = c.y - b.y;
+          var m1 = Math.hypot(v1x, v1y);
+          var m2 = Math.hypot(v2x, v2y);
+          if (m1 < 1e-6 || m2 < 1e-6) return 180;
+          var cos = Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / (m1 * m2)));
+          return round1((Math.acos(cos) * 180) / Math.PI);
+        }
+
+        function calcTrunkLeanDeg(ls, rs, lh, rh) {
+          var sX = ((ls.x + rs.x) / 2) * ASPECT_RATIO;
+          var sY = (ls.y + rs.y) / 2;
+          var hX = ((lh.x + rh.x) / 2) * ASPECT_RATIO;
+          var hY = (lh.y + rh.y) / 2;
+          var dx = sX - hX;
+          var dy = Math.max(1e-5, hY - sY);
+          return round1((Math.atan2(Math.abs(dx), dy) * 180) / Math.PI);
+        }
+
+        function stepFromVerticalDown(origin, length, angleDeg) {
+          var r = degToRad(angleDeg);
+          return {
+            x: origin.x + (Math.sin(r) * length) / ASPECT_RATIO,
+            y: origin.y + Math.cos(r) * length
+          };
+        }
+
+        function stepFromVerticalUp(origin, length, angleDeg) {
+          var r = degToRad(angleDeg);
+          return {
+            x: origin.x + (Math.sin(r) * length) / ASPECT_RATIO,
+            y: origin.y - Math.cos(r) * length
+          };
+        }
+
+        function getPresetMeta(id) {
+          for (var i = 0; i < MOVEMENT_PRESETS.length; i++) {
+            if (MOVEMENT_PRESETS[i].id === id) return MOVEMENT_PRESETS[i];
+          }
+          return MOVEMENT_PRESETS[0];
+        }
+
+        function computeSimulatedFrame(params, timestampSec) {
+          var cyclePhase = ((timestampSec % params.tempoSec) / params.tempoSec + 1) % 1;
+          var depthScale = params.depthPct / 100;
+          var asymRatio = params.asymmetryPct / 100;
+
+          var thighL = 0.175;
+          var shinL = 0.175;
+          var footL = 0.065;
+          var torsoL = 0.21;
+          var upperArmL = 0.125;
+          var forearmL = 0.115;
+          var handL = 0.045;
+          var groundY = 0.86;
+
+          var lm = [];
+          for (var k = 0; k < 33; k++) lm.push({ x: 0.5, y: 0.5 });
+          function setPt(idx, pt) {
+            lm[idx] = { x: pt.x, y: pt.y };
+          }
+
+          if (params.presetId === "squat") {
+            var w = smoothBell(cyclePhase);
+            var leftOff = -0.022;
+            var rightOff = 0.022;
+            var ankleL = { x: 0.48 + leftOff, y: groundY - 0.025 };
+            var ankleR = { x: 0.48 + rightOff, y: groundY - 0.025 };
+
+            var shinFwdL = lerp(3, 24 * depthScale * (1 + asymRatio * 0.45), w);
+            var shinFwdR = lerp(3, 24 * depthScale * (1 - asymRatio * 0.45), w);
+            var thighBackL = lerp(-4, -68 * depthScale * (1 + asymRatio * 0.35), w);
+            var thighBackR = lerp(-4, -68 * depthScale * (1 - asymRatio * 0.35), w);
+
+            var kneeL = stepFromVerticalUp(ankleL, shinL, shinFwdL);
+            var kneeR = stepFromVerticalUp(ankleR, shinL, shinFwdR);
+            var hipL = stepFromVerticalUp(kneeL, thighL, thighBackL);
+            var hipR = stepFromVerticalUp(kneeR, thighL, thighBackR);
+            var hipMid = { x: (hipL.x + hipR.x) / 2, y: (hipL.y + hipR.y) / 2 };
+
+            var trunkAngle = lerp(5, 30 * depthScale + params.trunkLeanBiasDeg, w);
+            var shoulderMid = stepFromVerticalUp(hipMid, torsoL, trunkAngle);
+            var shoulderL = { x: shoulderMid.x + leftOff * 0.9, y: shoulderMid.y - 0.005 };
+            var shoulderR = { x: shoulderMid.x + rightOff * 0.9, y: shoulderMid.y + 0.005 };
+
+            var armFwdL = lerp(12, 72 * depthScale, w);
+            var armFwdR = lerp(12, 72 * depthScale * (1 - asymRatio * 0.2), w);
+            var elbowL = stepFromVerticalDown(shoulderL, upperArmL, armFwdL);
+            var elbowR = stepFromVerticalDown(shoulderR, upperArmL, armFwdR);
+            var foreL = armFwdL + lerp(16, 22, w);
+            var foreR = armFwdR + lerp(16, 22, w);
+            var wristL = stepFromVerticalDown(elbowL, forearmL, foreL);
+            var wristR = stepFromVerticalDown(elbowR, forearmL, foreR);
+
+            setPt(0, stepFromVerticalUp(shoulderMid, 0.085, trunkAngle * 0.65));
+            setPt(11, shoulderL);
+            setPt(12, shoulderR);
+            setPt(13, elbowL);
+            setPt(14, elbowR);
+            setPt(15, wristL);
+            setPt(16, wristR);
+            setPt(19, stepFromVerticalDown(wristL, handL, foreL - 6));
+            setPt(20, stepFromVerticalDown(wristR, handL, foreR - 6));
+            setPt(23, hipL);
+            setPt(24, hipR);
+            setPt(25, kneeL);
+            setPt(26, kneeR);
+            setPt(27, ankleL);
+            setPt(28, ankleR);
+            setPt(31, { x: ankleL.x + footL / ASPECT_RATIO, y: groundY });
+            setPt(32, { x: ankleR.x + footL / ASPECT_RATIO, y: groundY });
+          } else if (params.presetId === "sprint") {
+            var theta = cyclePhase * Math.PI * 2;
+            var stride = depthScale;
+            var hipY = 0.49 - Math.abs(Math.sin(theta)) * 0.028 * stride;
+            var hipMid = { x: 0.5, y: hipY };
+            var hipL = { x: hipMid.x - 0.012, y: hipMid.y };
+            var hipR = { x: hipMid.x + 0.012, y: hipMid.y };
+
+            var trunkAngle = 12 + params.trunkLeanBiasDeg * 0.8 + Math.sin(theta * 2) * 2.5;
+            var shoulderMid = stepFromVerticalUp(hipMid, torsoL, trunkAngle);
+            var shoulderL = { x: shoulderMid.x - 0.014, y: shoulderMid.y };
+            var shoulderR = { x: shoulderMid.x + 0.014, y: shoulderMid.y };
+
+            var thighAngleL = 8 + Math.sin(theta) * 48 * stride * (1 + asymRatio * 0.25);
+            var thighAngleR = 8 + Math.sin(theta + Math.PI) * 48 * stride * (1 - asymRatio * 0.25);
+            var kneeL = stepFromVerticalDown(hipL, thighL, thighAngleL);
+            var kneeR = stepFromVerticalDown(hipR, thighL, thighAngleR);
+
+            var kFlexL = 22 + Math.max(0, Math.sin(theta - 0.8)) * 75 * stride + Math.max(0, -Math.sin(theta)) * 55 * stride;
+            var kFlexR = 22 + Math.max(0, Math.sin(theta + Math.PI - 0.8)) * 75 * stride + Math.max(0, -Math.sin(theta + Math.PI)) * 55 * stride;
+            var ankleL = stepFromVerticalDown(kneeL, shinL, thighAngleL - kFlexL);
+            var ankleR = stepFromVerticalDown(kneeR, shinL, thighAngleR - kFlexR);
+
+            var fAngL = 78 + Math.sin(theta) * 18;
+            var fAngR = 78 + Math.sin(theta + Math.PI) * 18;
+
+            var armL = Math.sin(theta + Math.PI) * 46 * stride;
+            var armR = Math.sin(theta) * 46 * stride;
+            var elbowL = stepFromVerticalDown(shoulderL, upperArmL, armL);
+            var elbowR = stepFromVerticalDown(shoulderR, upperArmL, armR);
+            var eFlexL = 82 + Math.sin(theta + Math.PI) * 16;
+            var eFlexR = 82 + Math.sin(theta) * 16;
+            var wristL = stepFromVerticalDown(elbowL, forearmL, armL + eFlexL);
+            var wristR = stepFromVerticalDown(elbowR, forearmL, armR + eFlexR);
+
+            setPt(0, stepFromVerticalUp(shoulderMid, 0.082, trunkAngle * 0.8));
+            setPt(11, shoulderL);
+            setPt(12, shoulderR);
+            setPt(13, elbowL);
+            setPt(14, elbowR);
+            setPt(15, wristL);
+            setPt(16, wristR);
+            setPt(19, stepFromVerticalDown(wristL, handL, armL + eFlexL + 6));
+            setPt(20, stepFromVerticalDown(wristR, handL, armR + eFlexR + 6));
+            setPt(23, hipL);
+            setPt(24, hipR);
+            setPt(25, kneeL);
+            setPt(26, kneeR);
+            setPt(27, ankleL);
+            setPt(28, ankleR);
+            setPt(31, stepFromVerticalDown(ankleL, footL, thighAngleL - kFlexL + fAngL));
+            setPt(32, stepFromVerticalDown(ankleR, footL, thighAngleR - kFlexR + fAngR));
+          } else if (params.presetId === "deadlift") {
+            var w = smoothBell(cyclePhase);
+            var leftOff = -0.018;
+            var rightOff = 0.018;
+            var ankleL = { x: 0.47 + leftOff, y: groundY - 0.025 };
+            var ankleR = { x: 0.47 + rightOff, y: groundY - 0.025 };
+
+            var kneeL = stepFromVerticalUp(ankleL, shinL, lerp(4, 13 * depthScale, w));
+            var kneeR = stepFromVerticalUp(ankleR, shinL, lerp(4, 13 * depthScale * (1 - asymRatio * 0.25), w));
+            var hipL = stepFromVerticalUp(kneeL, thighL, lerp(-5, -34 * depthScale * (1 + asymRatio * 0.2), w));
+            var hipR = stepFromVerticalUp(kneeR, thighL, lerp(-5, -34 * depthScale * (1 - asymRatio * 0.2), w));
+            var hipMid = { x: (hipL.x + hipR.x) / 2, y: (hipL.y + hipR.y) / 2 };
+
+            var trunkAngle = lerp(6, 58 * depthScale + params.trunkLeanBiasDeg * 0.85, w);
+            var shoulderMid = stepFromVerticalUp(hipMid, torsoL, trunkAngle);
+            var shoulderL = { x: shoulderMid.x + leftOff, y: shoulderMid.y - 0.004 };
+            var shoulderR = { x: shoulderMid.x + rightOff, y: shoulderMid.y + 0.004 };
+
+            var elbowL = stepFromVerticalDown(shoulderL, upperArmL, lerp(4, -6, w));
+            var elbowR = stepFromVerticalDown(shoulderR, upperArmL, lerp(4, -6, w));
+            var wristL = { x: 0.49 + leftOff * 0.7, y: elbowL.y + forearmL * 0.96 };
+            var wristR = { x: 0.49 + rightOff * 0.7, y: elbowR.y + forearmL * 0.96 };
+
+            setPt(0, stepFromVerticalUp(shoulderMid, 0.082, trunkAngle * 0.75));
+            setPt(11, shoulderL);
+            setPt(12, shoulderR);
+            setPt(13, elbowL);
+            setPt(14, elbowR);
+            setPt(15, wristL);
+            setPt(16, wristR);
+            setPt(19, { x: wristL.x, y: wristL.y + handL });
+            setPt(20, { x: wristR.x, y: wristR.y + handL });
+            setPt(23, hipL);
+            setPt(24, hipR);
+            setPt(25, kneeL);
+            setPt(26, kneeR);
+            setPt(27, ankleL);
+            setPt(28, ankleR);
+            setPt(31, { x: ankleL.x + footL / ASPECT_RATIO, y: groundY });
+            setPt(32, { x: ankleR.x + footL / ASPECT_RATIO, y: groundY });
+          } else if (params.presetId === "golf_swing") {
+            var swingAngle = 0;
+            if (cyclePhase < 0.45) {
+              var p1 = cyclePhase / 0.45;
+              swingAngle = -Math.sin((p1 * Math.PI) / 2) * 1.0 * depthScale;
+            } else if (cyclePhase < 0.68) {
+              var p2 = (cyclePhase - 0.45) / 0.23;
+              swingAngle = lerp(-1.0 * depthScale, 1.15 * depthScale, p2 * p2 * (3 - 2 * p2));
+            } else {
+              var p3 = (cyclePhase - 0.68) / 0.32;
+              swingAngle = lerp(1.15 * depthScale, 0, p3 * p3 * (3 - 2 * p3));
+            }
+
+            var hipShiftX = swingAngle * 0.028 * (1 + asymRatio * 0.4);
+            var hipMid = { x: 0.5 + hipShiftX, y: 0.52 };
+            var stanceHalfW = 0.075;
+            var shoulderHalfW = 0.068 * Math.cos(swingAngle * 0.55);
+
+            var ankleL = { x: 0.5 - stanceHalfW, y: groundY - 0.02 };
+            var ankleR = { x: 0.5 + stanceHalfW, y: groundY - 0.02 };
+            var hipL = { x: hipMid.x - 0.042, y: hipMid.y };
+            var hipR = { x: hipMid.x + 0.042, y: hipMid.y };
+            var kneeFlex = 14 + params.trunkLeanBiasDeg * 0.25;
+            var kneeL = { x: (ankleL.x + hipL.x) / 2 + swingAngle * 0.018, y: (ankleL.y + hipL.y) / 2 - kneeFlex * 0.0005 };
+            var kneeR = { x: (ankleR.x + hipR.x) / 2 + swingAngle * 0.012, y: (ankleR.y + hipR.y) / 2 - kneeFlex * 0.0005 };
+
+            var torsoTilt = swingAngle * 10 + (params.trunkLeanBiasDeg - 14) * 0.35;
+            var shoulderMid = stepFromVerticalUp(hipMid, torsoL * 0.94, torsoTilt);
+            var shoulderL = { x: shoulderMid.x - shoulderHalfW, y: shoulderMid.y + swingAngle * 0.015 };
+            var shoulderR = { x: shoulderMid.x + shoulderHalfW, y: shoulderMid.y - swingAngle * 0.015 };
+
+            var arcTheta = swingAngle * degToRad(118);
+            var handX = shoulderMid.x + (Math.sin(arcTheta) * 0.21) / ASPECT_RATIO;
+            var handY = shoulderMid.y + Math.cos(arcTheta) * 0.21;
+
+            var elbowL = { x: lerp(shoulderL.x, handX, 0.52) - 0.015, y: lerp(shoulderL.y, handY, 0.52) + 0.012 };
+            var elbowR = { x: lerp(shoulderR.x, handX, 0.48) + 0.022, y: lerp(shoulderR.y, handY, 0.48) + 0.025 };
+            var wristL = { x: handX - 0.005, y: handY };
+            var wristR = { x: handX + 0.005, y: handY };
+            var cock = Math.abs(swingAngle) * 32;
+
+            setPt(0, stepFromVerticalUp(shoulderMid, 0.08, torsoTilt * 0.3));
+            setPt(11, shoulderL);
+            setPt(12, shoulderR);
+            setPt(13, elbowL);
+            setPt(14, elbowR);
+            setPt(15, wristL);
+            setPt(16, wristR);
+            setPt(19, stepFromVerticalDown(wristL, handL * 1.3, swingAngle * 95 + cock));
+            setPt(20, stepFromVerticalDown(wristR, handL * 1.3, swingAngle * 95 + cock));
+            setPt(23, hipL);
+            setPt(24, hipR);
+            setPt(25, kneeL);
+            setPt(26, kneeR);
+            setPt(27, ankleL);
+            setPt(28, ankleR);
+            setPt(31, { x: ankleL.x - 0.028, y: groundY });
+            setPt(32, { x: ankleR.x + 0.028, y: groundY });
+          } else {
+            // Forward lunge
+            var w = smoothBell(cyclePhase);
+            var frontAnkle = { x: 0.62, y: groundY - 0.025 };
+            var rearAnkle = { x: 0.34, y: groundY - 0.045 - w * 0.015 };
+
+            var kneeR = stepFromVerticalUp(frontAnkle, shinL, lerp(4, 18 * depthScale * (1 + asymRatio * 0.3), w));
+            var hipR = stepFromVerticalUp(kneeR, thighL, lerp(-24, -78 * depthScale, w));
+            var kneeL = stepFromVerticalUp(rearAnkle, shinL, lerp(26, 76 * depthScale * (1 - asymRatio * 0.25), w));
+            var hipL = { x: hipR.x - 0.018, y: hipR.y };
+            var hipMid = { x: (hipL.x + hipR.x) / 2, y: (hipL.y + hipR.y) / 2 };
+
+            var trunkAngle = lerp(4, 12 + params.trunkLeanBiasDeg, w);
+            var shoulderMid = stepFromVerticalUp(hipMid, torsoL, trunkAngle);
+            var shoulderL = { x: shoulderMid.x - 0.014, y: shoulderMid.y };
+            var shoulderR = { x: shoulderMid.x + 0.014, y: shoulderMid.y };
+
+            var armFwdL = lerp(10, 32 * depthScale, w);
+            var armBackR = lerp(8, -18 * depthScale, w);
+            var elbowL = stepFromVerticalDown(shoulderL, upperArmL, armFwdL);
+            var elbowR = stepFromVerticalDown(shoulderR, upperArmL, armBackR);
+            var wristL = stepFromVerticalDown(elbowL, forearmL, armFwdL + 48);
+            var wristR = stepFromVerticalDown(elbowR, forearmL, armBackR + 42);
+
+            setPt(0, stepFromVerticalUp(shoulderMid, 0.082, trunkAngle * 0.7));
+            setPt(11, shoulderL);
+            setPt(12, shoulderR);
+            setPt(13, elbowL);
+            setPt(14, elbowR);
+            setPt(15, wristL);
+            setPt(16, wristR);
+            setPt(19, stepFromVerticalDown(wristL, handL, armFwdL + 44));
+            setPt(20, stepFromVerticalDown(wristR, handL, armBackR + 38));
+            setPt(23, hipL);
+            setPt(24, hipR);
+            setPt(25, kneeL);
+            setPt(26, kneeR);
+            setPt(27, rearAnkle);
+            setPt(28, frontAnkle);
+            setPt(31, { x: rearAnkle.x + (footL * 0.65) / ASPECT_RATIO, y: groundY });
+            setPt(32, { x: frontAnkle.x + footL / ASPECT_RATIO, y: groundY });
+          }
+
+          var angles = {
+            shoulder: { left: calcAngleDeg(lm[23], lm[11], lm[13]), right: calcAngleDeg(lm[24], lm[12], lm[14]) },
+            elbow: { left: calcAngleDeg(lm[11], lm[13], lm[15]), right: calcAngleDeg(lm[12], lm[14], lm[16]) },
+            wrist: { left: calcAngleDeg(lm[13], lm[15], lm[19]), right: calcAngleDeg(lm[14], lm[16], lm[20]) },
+            hip: { left: calcAngleDeg(lm[11], lm[23], lm[25]), right: calcAngleDeg(lm[12], lm[24], lm[26]) },
+            knee: { left: calcAngleDeg(lm[23], lm[25], lm[27]), right: calcAngleDeg(lm[24], lm[26], lm[28]) },
+            ankle: { left: calcAngleDeg(lm[25], lm[27], lm[31]), right: calcAngleDeg(lm[26], lm[28], lm[32]) }
+          };
+
+          return {
+            timestampSec: Math.round(timestampSec * 100) / 100,
+            landmarks: lm,
+            angles: angles,
+            trunkLean: calcTrunkLeanDeg(lm[11], lm[12], lm[23], lm[24]),
+            comX: Math.round(((lm[23].x + lm[24].x) / 2) * 1000) / 1000
+          };
+        }
+
+        function summarizeJoints(frames) {
+          var summary = JOINT_ORDER.map(function (joint) {
+            var lv = [];
+            var rv = [];
+            for (var i = 0; i < frames.length; i++) {
+              lv.push(frames[i].angles[joint].left);
+              rv.push(frames[i].angles[joint].right);
+            }
+            var lMin = Math.min.apply(null, lv);
+            var lMax = Math.max.apply(null, lv);
+            var lRom = round1(lMax - lMin);
+            var lMean = round1(lv.reduce(function (a, b) { return a + b; }, 0) / lv.length);
+
+            var rMin = Math.min.apply(null, rv);
+            var rMax = Math.max.apply(null, rv);
+            var rRom = round1(rMax - rMin);
+            var rMean = round1(rv.reduce(function (a, b) { return a + b; }, 0) / rv.length);
+
+            return {
+              joint: joint,
+              labelKo: JOINT_META[joint].labelKo,
+              leftMin: lMin,
+              leftMax: lMax,
+              leftRom: lRom,
+              leftMean: lMean,
+              rightMin: rMin,
+              rightMax: rMax,
+              rightRom: rRom,
+              rightMean: rMean,
+              asymmetryDeg: round1(Math.abs(lMean - rMean))
+            };
+          });
+
+          var tSum = frames.reduce(function (acc, f) { return acc + f.trunkLean; }, 0);
+          return {
+            summary: summary,
+            avgTrunkLean: round1(tSum / frames.length)
+          };
+        }
+
+        function generateDataset(params) {
+          var preset = getPresetMeta(params.presetId);
+          var durationSec = Math.round(params.tempoSec * params.cycles * 100) / 100;
+          var fps = 20;
+          var total = Math.max(24, Math.min(120, Math.round(durationSec * fps)));
+          var frames = [];
+          for (var i = 0; i < total; i++) {
+            var t = (i / (total - 1)) * durationSec;
+            frames.push(computeSimulatedFrame(params, t));
+          }
+          var stats = summarizeJoints(frames);
+          var peakIdx = Math.min(total - 1, Math.max(1, Math.round((total - 1) / (params.cycles * 2))));
+
+          return {
+            exerciseType: preset.nameKo,
+            durationSec: durationSec,
+            frames: frames,
+            summary: stats.summary,
+            avgTrunkLean: stats.avgTrunkLean,
+            keyframeIndices: [
+              { idx: 0, label: "시작 · 준비 자세" },
+              { idx: peakIdx, label: "최대 가동 · 전환 구간" },
+              { idx: total - 1, label: "마무리 · 복귀 자세" }
+            ]
+          };
+        }
+
+        // Deterministic rule-based biomechanical diagnostics directly from measured ROM/angles
+        function buildBiomechanicsDiagnosis(params, dataset) {
+          var preset = getPresetMeta(params.presetId);
+          var byJoint = {};
+          dataset.summary.forEach(function (s) { byJoint[s.joint] = s; });
+
+          var knee = byJoint.knee;
+          var hip = byJoint.hip;
+          var ankle = byJoint.ankle;
+          var shoulder = byJoint.shoulder;
+          var elbow = byJoint.elbow;
+          var wrist = byJoint.wrist;
+
+          var maxTrunk = Math.max.apply(null, dataset.frames.map(function (f) { return f.trunkLean; }));
+          var maxAsym = Math.max.apply(null, dataset.summary.map(function (s) { return s.asymmetryDeg; }));
+
+          var characteristics = [];
+          characteristics.push(
+            "무릎 관절 가동범위(ROM)는 좌측 " + knee.leftRom + "°, 우측 " + knee.rightRom + "°(최저 각도 " + Math.min(knee.leftMin, knee.rightMin) + "°)로 계측되었습니다."
+          );
+          characteristics.push(
+            "고관절(골반)은 좌측 " + hip.leftRom + "° / 우측 " + hip.rightRom + "° 범위에서 움직였으며, 발목 가동범위는 " + ankle.leftRom + "°로 나타났습니다."
+          );
+          characteristics.push(
+            "상체 평균 전경 각도는 " + dataset.avgTrunkLean + "°(최대 " + maxTrunk + "°)이며, 최대 좌우 각도 차이는 " + maxAsym + "°입니다."
+          );
+          characteristics.push(
+            "상지 협응 관절(어깨 ROM " + shoulder.leftRom + "°, 팔꿈치 ROM " + elbow.leftRom + "°, 손목 ROM " + wrist.leftRom + "°)이 체간 밸런스에 맞춰 연동되었습니다."
+          );
+
+          var jointEvaluations = dataset.summary.map(function (item) {
+            var status = "양호";
+            var finding = "";
+            var rec = "";
+
+            if (item.asymmetryDeg >= 8) {
+              status = "개선필요";
+              finding = "좌우 평균 각도 차이가 " + item.asymmetryDeg + "°로 편측 하중 편향이 뚜렷합니다.";
+              rec = "거울 앞 단일 다리/편측 안정화 연습으로 좌우 균형(차이 4° 이내)을 회복하세요.";
+            } else if (item.asymmetryDeg >= 4.5) {
+              status = "주의";
+              finding = "좌우 각도 차이 " + item.asymmetryDeg + "°의 경미한 불균형이 관찰됩니다.";
+              rec = "동작 전환 구간에서 약한 측의 지지 의식을 높여 좌우 대칭을 맞추세요.";
+            } else if (item.joint === "knee" && params.presetId === "squat" && item.leftRom < 55) {
+              status = "주의";
+              finding = "무릎 굴곡 ROM이 " + item.leftRom + "°로 하강 깊이가 다소 제한적입니다.";
+              rec = "발목 배측 굴곡 스트레칭 후 대퇴가 지면과 평행해지는 깊이까지 가동범위를 확장하세요.";
+            } else if (item.joint === "hip" && maxTrunk >= 42 && params.presetId !== "deadlift") {
+              status = "주의";
+              finding = "상체 최대 전경(" + maxTrunk + "°) 증가로 고관절·요추 모멘트 암이 커졌습니다.";
+              rec = "코어 복압을 유지하고 가슴을 세운 상태에서 고관절 굴곡과 무릎 전방 이동을 균형 있게 배분하세요.";
+            } else {
+              status = "양호";
+              finding = "좌측 ROM " + item.leftRom + "° / 우측 ROM " + item.rightRom + "°로 안정적인 궤적을 유지했습니다.";
+              rec = "현재 템포와 좌우 정렬(" + item.asymmetryDeg + "° 차이)을 일관되게 유지하세요.";
+            }
+
+            return {
+              jointName: item.labelKo,
+              side: "양측",
+              status: status,
+              measuredRom: "좌 " + item.leftRom + "° / 우 " + item.rightRom + "°",
+              finding: finding,
+              recommendation: rec
+            };
+          });
+
+          var improvements = [];
+          if (params.trunkLeanBiasDeg >= 14 || maxTrunk >= 42) {
+            improvements.push({
+              title: "상체 과다 전경 제어 및 척추 중립",
+              priority: "높음",
+              description: "최대 상체 전경이 " + maxTrunk + "°까지 증가해 하부 요추 전단력이 높아질 수 있습니다.",
+              drill: "벽 마주보고 맨몸 스쿼트(Wall Squat) 3세트 × 10회로 상체 직립 감각과 흉추 신전을 학습하세요."
+            });
+          } else {
+            improvements.push({
+              title: "체간 안정성 및 무게중심 수직 정렬",
+              priority: "낮음",
+              description: "평균 상체 전경 " + dataset.avgTrunkLean + "°로 무게중심이 발 중앙 부근에 안정적으로 위치합니다.",
+              drill: "데드버그(Dead Bug) 및 플랭크 브레이싱으로 고부하 동작 시에도 복압을 유지하세요."
+            });
+          }
+
+          if (maxAsym >= 6) {
+            improvements.push({
+              title: "좌우 관절 가동성 비대칭 교정",
+              priority: "높음",
+              description: "좌우 평균 각도 편차가 최대 " + maxAsym + "° 발생하여 편측 관절 과사용 위험이 있습니다.",
+              drill: "불가리안 스플릿 스쿼트 및 싱글 레그 밸런스(각 측 3세트 × 8회)로 양측 근신경 동원을 균등화하세요."
+            });
+          } else {
+            improvements.push({
+              title: "양측 대칭성 유지 및 편심 제어",
+              priority: "중간",
+              description: "좌우 각도 차이 " + maxAsym + "° 이내로 균형 잡힌 협응 움직임을 보였습니다.",
+              drill: "하강(편심) 구간을 3초간 천천히 제어하는 템포 트레이닝으로 관절 안정성을 강화하세요."
+            });
+          }
+
+          if (params.depthPct < 75) {
+            improvements.push({
+              title: "목표 관절 가동범위(ROM) 확장",
+              priority: "중간",
+              description: "동작 깊이 설정이 " + params.depthPct + "%로 주요 관절의 전체 가동범위를 충분히 활용하지 못했습니다.",
+              drill: "발목 가동성 드릴(Knee-to-Wall) 후 통증 없는 범위에서 점진적으로 하강 깊이를 늘려주세요."
+            });
+          } else {
+            improvements.push({
+              title: "전환 구간 탄성 반동 억제 및 정지 안정화",
+              priority: "중간",
+              description: "목표 깊이(" + params.depthPct + "%) 도달 후 전환 구간에서 관절 정렬 유지가 중요합니다.",
+              drill: "최저점/전환점에서 1초 정지 후 지면을 강하게 밀어내는 포즈(Pause) 반복을 연습하세요."
+            });
+          }
+
+          var overallSummary =
+            preset.nameKo +
+            " 시뮬레이션(깊이 " +
+            params.depthPct +
+            "%, 상체 편차 +" +
+            params.trunkLeanBiasDeg +
+            "°, 좌우 비대칭 " +
+            params.asymmetryPct +
+            "%) 분석 결과, 무릎 ROM " +
+            knee.leftRom +
+            "°·골반 ROM " +
+            hip.leftRom +
+            "°·평균 상체 기울기 " +
+            dataset.avgTrunkLean +
+            "°가 계측되었습니다. " +
+            (maxAsym >= 6 || maxTrunk >= 42
+              ? "상체 전경 편차 또는 좌우 각도 불균형이 감지되어 아래 교정 포인트 적용이 권장됩니다."
+              : "전반적인 관절 정렬과 좌우 대칭성이 안정적인 범위 내에 있습니다.");
+
+          return {
+            movementName: preset.nameKo,
+            overallSummary: overallSummary,
+            characteristics: characteristics,
+            jointEvaluations: jointEvaluations,
+            improvements: improvements
+          };
+        }
+
+        function drawStage(canvas, frame, opts) {
+          var ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          var w = canvas.width;
+          var h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          var bg = ctx.createLinearGradient(0, 0, 0, h);
+          bg.addColorStop(0, "#09182E");
+          bg.addColorStop(1, "#0D2342");
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, w, h);
+
+          var cAspect = w / h;
+          var drawW = w;
+          var drawH = h;
+          var ox = 0;
+          var oy = 0;
+          if (ASPECT_RATIO > cAspect) {
+            drawW = w;
+            drawH = w / ASPECT_RATIO;
+            oy = (h - drawH) / 2;
+          } else {
+            drawH = h;
+            drawW = h * ASPECT_RATIO;
+            ox = (w - drawW) / 2;
+          }
+
+          function toPx(pt) {
+            return { x: ox + pt.x * drawW, y: oy + pt.y * drawH };
+          }
+
+          // Grid
+          ctx.strokeStyle = "rgba(148, 163, 184, 0.11)";
+          ctx.lineWidth = 1;
+          var step = Math.max(28, Math.round(drawW / 16));
+          for (var gx = ox % step; gx < w; gx += step) {
+            ctx.beginPath();
+            ctx.moveTo(gx, 0);
+            ctx.lineTo(gx, h);
+            ctx.stroke();
+          }
+          for (var gy = oy % step; gy < h; gy += step) {
+            ctx.beginPath();
+            ctx.moveTo(0, gy);
+            ctx.lineTo(w, gy);
+            ctx.stroke();
+          }
+
+          var groundY = oy + 0.865 * drawH;
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.45)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(ox + drawW * 0.12, groundY);
+          ctx.lineTo(ox + drawW * 0.88, groundY);
+          ctx.stroke();
+
+          if (!frame || !frame.landmarks) return;
+          var lm = frame.landmarks;
+
+          if (opts.showComLine && frame.comX !== null) {
+            var comPx = ox + frame.comX * drawW;
+            ctx.save();
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = "rgba(250, 204, 21, 0.55)";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(comPx, oy + drawH * 0.14);
+            ctx.lineTo(comPx, groundY);
+            ctx.stroke();
+            ctx.restore();
+
+            var hipMidY = ((lm[23].y + lm[24].y) / 2) * drawH + oy;
+            ctx.beginPath();
+            ctx.arc(comPx, hipMidY, Math.max(3.5, drawH * 0.011), 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(250, 204, 21, 0.9)";
+            ctx.fill();
+          }
+
+          var headPx = toPx(lm[0]);
+          var sMid = toPx({ x: (lm[11].x + lm[12].x) / 2, y: (lm[11].y + lm[12].y) / 2 });
+          var hMid = toPx({ x: (lm[23].x + lm[24].x) / 2, y: (lm[23].y + lm[24].y) / 2 });
+
+          ctx.beginPath();
+          ctx.moveTo(sMid.x, sMid.y);
+          ctx.lineTo(headPx.x, headPx.y);
+          ctx.strokeStyle = "rgba(226, 232, 240, 0.7)";
+          ctx.lineWidth = Math.max(2, drawH * 0.007);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(headPx.x, headPx.y, Math.max(6, drawH * 0.036), 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(30, 58, 138, 0.55)";
+          ctx.fill();
+          ctx.lineWidth = Math.max(1.5, drawH * 0.004);
+          ctx.strokeStyle = "rgba(226, 232, 240, 0.9)";
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(hMid.x, hMid.y);
+          ctx.lineTo(sMid.x, sMid.y);
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+          ctx.lineWidth = Math.max(4, drawH * 0.018);
+          ctx.lineCap = "round";
+          ctx.stroke();
+
+          if (opts.showSkeleton) {
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            for (var c = 0; c < POSE_CONNECTIONS.length; c++) {
+              var pair = POSE_CONNECTIONS[c];
+              if (opts.sideFilter !== "both" && pair[2] !== "center" && pair[2] !== opts.sideFilter) continue;
+              var a = toPx(lm[pair[0]]);
+              var b = toPx(lm[pair[1]]);
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.lineWidth = Math.max(2, (pair[2] === "center" ? 3.5 : 4.5) * (drawH / 540));
+              ctx.strokeStyle = pair[2] === "left" ? "#3B82F6" : pair[2] === "right" ? "#22D3EE" : "rgba(248, 250, 252, 0.9)";
+              ctx.stroke();
+            }
+
+            var nodes = [11, 12, 13, 14, 15, 16, 19, 20, 23, 24, 25, 26, 27, 28, 31, 32];
+            for (var n = 0; n < nodes.length; n++) {
+              var idx = nodes[n];
+              var isL = idx % 2 === 1;
+              var side = isL ? "left" : "right";
+              if (opts.sideFilter !== "both" && side !== opts.sideFilter) continue;
+              var pt = toPx(lm[idx]);
+              ctx.beginPath();
+              ctx.arc(pt.x, pt.y, Math.max(2.5, 5 * (drawH / 540)), 0, Math.PI * 2);
+              ctx.fillStyle = "#FFFFFF";
+              ctx.fill();
+              ctx.lineWidth = Math.max(1.2, 2 * (drawH / 540));
+              ctx.strokeStyle = isL ? "#2563EB" : "#06B6D4";
+              ctx.stroke();
+            }
+          }
+
+          if (opts.showAngles && w >= 420) {
+            ctx.font = '600 11px "JetBrains Mono", monospace';
+            ctx.textBaseline = "middle";
+            for (var j = 0; j < JOINT_LANDMARK_MAP.length; j++) {
+              var jm = JOINT_LANDMARK_MAP[j];
+              if (opts.sideFilter !== "both" && jm.side !== opts.sideFilter) continue;
+              var val = frame.angles[jm.joint][jm.side];
+              var p = toPx(lm[jm.idx]);
+              var txt = JOINT_META[jm.joint].labelKo + " " + Math.round(val) + "°";
+              var tw = ctx.measureText(txt).width;
+              var bw = tw + 10;
+              var bh = 20;
+              var lx = jm.side === "left" ? p.x - bw - 10 : p.x + 10;
+              var ly = Math.max(8, Math.min(h - bh - 8, p.y - bh / 2));
+
+              ctx.fillStyle = "rgba(11, 31, 58, 0.88)";
+              ctx.beginPath();
+              if (ctx.roundRect) {
+                ctx.roundRect(lx, ly, bw, bh, 4);
+              } else {
+                ctx.rect(lx, ly, bw, bh);
+              }
+              ctx.fill();
+              ctx.strokeStyle = jm.side === "left" ? "rgba(59, 130, 246, 0.75)" : "rgba(34, 211, 238, 0.75)";
+              ctx.lineWidth = 1;
+              ctx.stroke();
+              ctx.fillStyle = "#F8FAFC";
+              ctx.fillText(txt, lx + 5, ly + bh / 2);
+            }
+
+            ctx.font = '500 11px "JetBrains Mono", monospace';
+            ctx.fillStyle = "rgba(148, 163, 184, 0.85)";
+            ctx.fillText("t = " + frame.timestampSec.toFixed(2) + "s · 상체 기울기 " + frame.trunkLean.toFixed(1) + "°", 16, 22);
+          }
+        }
+
+        function findNearestFrame(frames, t) {
+          if (!frames.length) return null;
+          var best = frames[0];
+          var diff = Math.abs(best.timestampSec - t);
+          for (var i = 1; i < frames.length; i++) {
+            var d = Math.abs(frames[i].timestampSec - t);
+            if (d < diff) {
+              best = frames[i];
+              diff = d;
+            }
+          }
+          return best;
+        }
+
+        // LocalStorage persistence (works safely on file:// and https://)
+        function loadSessions() {
+          try {
+            var raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [];
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            return [];
+          }
+        }
+
+        function persistSessions(list) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+          } catch (e) {
+            // Keep running in-memory if browser restricts storage
+          }
+        }
+
+        // Navigation & Rendering
+        function switchTab(tab) {
+          state.activeTab = tab;
+          document.querySelectorAll(".nav-link").forEach(function (el) {
+            el.classList.toggle("active", el.getAttribute("data-nav") === tab);
+          });
+          document.querySelectorAll(".mobile-drawer .btn").forEach(function (el) {
+            el.classList.toggle("active", el.getAttribute("data-nav") === tab);
+          });
+          document.getElementById("mobileDrawer").classList.remove("open");
+
+          document.getElementById("view-home").classList.toggle("active", tab === "home");
+          document.getElementById("view-simulation").classList.toggle("active", tab === "simulation");
+          document.getElementById("view-compare-history").classList.toggle(
+            "active",
+            tab === "compare" || tab === "history"
+          );
+
+          if (tab === "home") renderHome();
+          if (tab === "simulation") renderSimulationStudio();
+          if (tab === "compare" || tab === "history") renderCompareHistory();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function renderHome() {
+          var preset = getPresetMeta(state.homePresetId);
+          document.getElementById("homePresetViewLabel").textContent = preset.viewLabel;
+          document.getElementById("homePresetDesc").textContent = preset.description;
+          document.getElementById("homeLaunchText").textContent = preset.nameKo + " 시뮬레이션 실행 및 분석";
+          document.getElementById("homePreviewCaption").textContent = "실시간 운동학 프리뷰 · " + preset.nameKo;
+
+          var tabsWrap = document.getElementById("homePresetTabs");
+          tabsWrap.innerHTML = "";
+          MOVEMENT_PRESETS.forEach(function (p) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn btn-outline btn-sm" + (p.id === state.homePresetId ? " active" : "");
+            btn.textContent = p.nameKo;
+            btn.addEventListener("click", function () {
+              state.homePresetId = p.id;
+              renderHome();
+            });
+            tabsWrap.appendChild(btn);
+          });
+
+          var viewAllBtn = document.getElementById("homeViewAllHistoryBtn");
+          viewAllBtn.style.display = state.sessions.length > 0 ? "inline-flex" : "none";
+
+          var recentWrap = document.getElementById("homeRecentContainer");
+          if (state.sessions.length === 0) {
+            recentWrap.innerHTML =
+              '<div class="card empty-box">' +
+              '<h3 style="margin:0;font-size:16px;font-weight:800;color:var(--navy-900);">저장된 시뮬레이션 기록이 아직 없습니다</h3>' +
+              '<p style="margin:8px auto 18px;max-width:440px;font-size:13px;color:var(--slate-500);">종목을 선택해 시뮬레이션을 실행한 뒤 ‘현재 시뮬레이션 기록 저장’을 누르면 결과가 이곳에 보관됩니다.</p>' +
+              '<button type="button" class="btn btn-primary" id="emptyLaunchBtn">첫 시뮬레이션 실행하기</button>' +
+              "</div>";
+            document.getElementById("emptyLaunchBtn").addEventListener("click", function () {
+              launchPreset(state.homePresetId);
+            });
+            return;
+          }
+
+          var grid = document.createElement("div");
+          grid.className = "records-grid";
+          state.sessions.slice(0, 4).forEach(function (sess) {
+            var ds = generateDataset(sess.params);
+            var knee = ds.summary.find(function (x) { return x.joint === "knee"; });
+            var hip = ds.summary.find(function (x) { return x.joint === "hip"; });
+            var dStr = new Date(sess.createdAt).toLocaleDateString("ko-KR", {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+
+            var card = document.createElement("div");
+            card.className = "card record-card";
+
+            var thumbCanvas = document.createElement("canvas");
+            thumbCanvas.className = "record-thumb";
+            thumbCanvas.width = 360;
+            thumbCanvas.height = 202;
+            drawStage(thumbCanvas, ds.frames[ds.keyframeIndices[1].idx], {
+              showSkeleton: true,
+              showAngles: false,
+              showComLine: true,
+              sideFilter: "both"
+            });
+
+            var body = document.createElement("div");
+            body.className = "record-body";
+            body.innerHTML =
+              '<div class="mono" style="font-size:11px;color:var(--slate-500);">' +
+              dStr +
+              " · " +
+              ds.durationSec.toFixed(1) +
+              "초</div>" +
+              '<h3 style="margin:4px 0 6px;font-size:15px;font-weight:800;color:var(--navy-900);">' +
+              sess.title +
+              "</h3>" +
+              '<div class="mono" style="font-size:12px;color:var(--slate-600);">무릎 ROM ' +
+              knee.leftRom +
+              "° · 골반 ROM " +
+              hip.leftRom +
+              "°</div>";
+
+            var actions = document.createElement("div");
+            actions.className = "record-actions";
+            var openBtn = document.createElement("button");
+            openBtn.type = "button";
+            openBtn.className = "btn btn-primary btn-sm";
+            openBtn.style.flex = "1";
+            openBtn.textContent = "결과 보기";
+            openBtn.addEventListener("click", function () {
+              openSessionInStudio(sess);
+            });
+
+            var cmpBtn = document.createElement("button");
+            cmpBtn.type = "button";
+            cmpBtn.className = "btn btn-secondary btn-sm";
+            cmpBtn.textContent = "비교";
+            cmpBtn.addEventListener("click", function () {
+              state.compareAId = sess.id;
+              switchTab("compare");
+            });
+
+            actions.appendChild(openBtn);
+            actions.appendChild(cmpBtn);
+
+            card.appendChild(thumbCanvas);
+            card.appendChild(body);
+            card.appendChild(actions);
+            grid.appendChild(card);
+          });
+
+          recentWrap.innerHTML = "";
+          recentWrap.appendChild(grid);
+        }
+
+        var currentStudioDataset = null;
+
+        function renderSimulationStudio() {
+          currentStudioDataset = generateDataset(state.params);
+          var preset = getPresetMeta(state.params.presetId);
+          if (state.currentTimeSec > currentStudioDataset.durationSec) {
+            state.currentTimeSec = 0;
+          }
+
+          document.getElementById("studioMetaLine").textContent =
+            preset.viewLabel +
+            " · 주기 " +
+            state.params.tempoSec.toFixed(1) +
+            "초 · 총 " +
+            currentStudioDataset.durationSec.toFixed(2) +
+            "초 (" +
+            currentStudioDataset.frames.length +
+            "프레임)";
+          document.getElementById("studioTitle").textContent = preset.nameKo + " 생체역학 시뮬레이션";
+
+          var presetTabs = document.getElementById("studioPresetTabs");
+          presetTabs.innerHTML = "";
+          MOVEMENT_PRESETS.forEach(function (p) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "btn btn-outline btn-sm" + (p.id === state.params.presetId ? " active" : "");
+            b.textContent = p.nameKo;
+            b.addEventListener("click", function () {
+              launchPreset(p.id);
+            });
+            presetTabs.appendChild(b);
+          });
+
+          // Sync sliders
+          document.getElementById("sliderDepth").value = state.params.depthPct;
+          document.getElementById("valDepthPct").textContent = state.params.depthPct + "%";
+          document.getElementById("sliderTrunk").value = state.params.trunkLeanBiasDeg;
+          document.getElementById("valTrunkBias").textContent = "+" + state.params.trunkLeanBiasDeg + "°";
+          document.getElementById("sliderAsym").value = state.params.asymmetryPct;
+          document.getElementById("valAsymmetry").textContent = state.params.asymmetryPct + "%";
+          document.getElementById("sliderTempo").value = state.params.tempoSec;
+          document.getElementById("valTempo").textContent = state.params.tempoSec.toFixed(1) + "초";
+
+          var tl = document.getElementById("timelineSlider");
+          tl.max = currentStudioDataset.durationSec;
+          document.getElementById("avgTrunkStat").textContent = currentStudioDataset.avgTrunkLean.toFixed(1) + "°";
+
+          renderKeyframesStrip();
+          renderChartControls();
+          renderKinematicChart();
+          renderDiagnosticReport();
+          updateStudioLiveFrame();
+        }
+
+        function updateStudioLiveFrame() {
+          if (!currentStudioDataset) return;
+          var frame = findNearestFrame(currentStudioDataset.frames, state.currentTimeSec);
+          var canvas = document.getElementById("studioCanvas");
+          drawStage(canvas, frame, {
+            showSkeleton: state.showSkeleton,
+            showAngles: state.showAngles,
+            showComLine: state.showComLine,
+            sideFilter: state.sideFilter
+          });
+
+          document.getElementById("timelineSlider").value = Math.min(state.currentTimeSec, currentStudioDataset.durationSec);
+          document.getElementById("timeReadout").textContent =
+            state.currentTimeSec.toFixed(2) + "s / " + currentStudioDataset.durationSec.toFixed(2) + "s";
+          document.getElementById("liveTrunkReadout").textContent = frame ? frame.trunkLean.toFixed(1) + "°" : "-";
+          document.getElementById("playPauseBtn").textContent = state.isPlaying ? "일시정지" : "재생";
+
+          // Update 6-joint telemetry rows
+          var tbody = document.getElementById("telemetryTableBody");
+          tbody.innerHTML = "";
+          currentStudioDataset.summary.forEach(function (item) {
+            var liveL = frame ? frame.angles[item.joint].left : null;
+            var liveR = frame ? frame.angles[item.joint].right : null;
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+              '<td><div style="display:flex;align-items:center;gap:8px;">' +
+              '<span style="width:10px;height:10px;border-radius:2px;background:' +
+              JOINT_META[item.joint].colorLeft +
+              ';flex-shrink:0;"></span>' +
+              '<div><div style="font-weight:700;color:var(--navy-900);">' +
+              item.labelKo +
+              '</div><div style="font-size:11px;color:var(--slate-400);">' +
+              JOINT_META[item.joint].desc +
+              "</div></div></div></td>" +
+              '<td class="num-right mono" style="font-weight:700;color:var(--blue-700);">' +
+              (liveL !== null ? liveL.toFixed(1) + "°" : "-") +
+              "</td>" +
+              '<td class="num-right mono" style="font-weight:700;color:var(--cyan-600);">' +
+              (liveR !== null ? liveR.toFixed(1) + "°" : "-") +
+              "</td>" +
+              '<td class="num-right mono" style="color:var(--slate-700);">' +
+              item.leftRom.toFixed(1) +
+              "°</td>" +
+              '<td class="num-right mono" style="color:var(--slate-700);">' +
+              item.rightRom.toFixed(1) +
+              "°</td>" +
+              '<td class="num-right mono" style="color:var(--slate-600);">' +
+              item.asymmetryDeg.toFixed(1) +
+              "°</td>";
+            tbody.appendChild(tr);
+          });
+
+          // Move SVG playhead cleanly
+          var playhead = document.getElementById("svgPlayheadLine");
+          var playheadDot = document.getElementById("svgPlayheadDot");
+          if (playhead && playheadDot) {
+            var safeDur = Math.max(currentStudioDataset.durationSec, 0.2);
+            var px = 46 + (Math.min(Math.max(state.currentTimeSec, 0), safeDur) / safeDur) * (960 - 46 - 20);
+            playhead.setAttribute("x1", px.toFixed(1));
+            playhead.setAttribute("x2", px.toFixed(1));
+            playheadDot.setAttribute("cx", px.toFixed(1));
+          }
+
+          if (state.chartHoverIdx === null) {
+            renderChartHud(frame, false);
+          }
+        }
+
+        function renderKeyframesStrip() {
+          var grid = document.getElementById("keyframesGrid");
+          grid.innerHTML = "";
+          currentStudioDataset.keyframeIndices.forEach(function (kf) {
+            var f = currentStudioDataset.frames[kf.idx];
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "kf-btn";
+            var c = document.createElement("canvas");
+            c.width = 320;
+            c.height = 180;
+            drawStage(c, f, { showSkeleton: true, showAngles: false, showComLine: true, sideFilter: "both" });
+
+            var meta = document.createElement("div");
+            meta.style.padding = "8px";
+            meta.innerHTML =
+              '<div style="font-size:11px;font-weight:700;color:var(--navy-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+              kf.label +
+              '</div><div class="mono" style="font-size:11px;color:var(--slate-500);">' +
+              f.timestampSec.toFixed(2) +
+              "s</div>";
+
+            btn.appendChild(c);
+            btn.appendChild(meta);
+            btn.addEventListener("click", function () {
+              state.isPlaying = false;
+              state.currentTimeSec = f.timestampSec;
+              updateStudioLiveFrame();
+            });
+            grid.appendChild(btn);
+          });
+        }
+
+        function renderChartControls() {
+          var wrap = document.getElementById("chartJointButtons");
+          wrap.innerHTML = "";
+          CHART_JOINTS.forEach(function (j) {
+            var active = state.chartJoints.indexOf(j) !== -1;
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn btn-outline btn-sm" + (active ? " active" : "");
+            btn.innerHTML =
+              '<span style="width:8px;height:8px;border-radius:2px;background:' +
+              JOINT_META[j].colorLeft +
+              ';"></span><span>' +
+              JOINT_META[j].labelKo +
+              "</span>";
+            btn.addEventListener("click", function () {
+              var idx = state.chartJoints.indexOf(j);
+              if (idx !== -1) {
+                if (state.chartJoints.length > 1) state.chartJoints.splice(idx, 1);
+              } else {
+                state.chartJoints.push(j);
+              }
+              renderChartControls();
+              renderKinematicChart();
+            });
+            wrap.appendChild(btn);
+          });
+        }
+
+        function renderChartHud(frame, isHover) {
+          var hud = document.getElementById("chartHud");
+          if (!frame) {
+            hud.innerHTML = "";
+            return;
+          }
+          var html =
+            '<strong style="color:var(--navy-900);">' +
+            (isHover ? "미리보기 시점: " : "현재 시점: ") +
+            frame.timestampSec.toFixed(2) +
+            "s</strong>";
+          state.chartJoints.forEach(function (j) {
+            html +=
+              '<span style="display:inline-flex;align-items:center;gap:6px;">' +
+              '<span style="width:8px;height:8px;border-radius:2px;background:' +
+              JOINT_META[j].colorLeft +
+              ';"></span>' +
+              '<span>' +
+              JOINT_META[j].labelKo +
+              " 좌 " +
+              frame.angles[j].left.toFixed(1) +
+              "° / 우 " +
+              frame.angles[j].right.toFixed(1) +
+              "°</span></span>";
+          });
+          hud.innerHTML = html;
+        }
+
+        function renderKinematicChart() {
+          var svg = document.getElementById("kinematicSvg");
+          var ds = currentStudioDataset;
+          if (!ds) return;
+          var W = 960,
+            H = 270,
+            padL = 46,
+            padR = 20,
+            padT = 18,
+            padB = 34;
+          var plotW = W - padL - padR;
+          var plotH = H - padT - padB;
+          var safeDur = Math.max(ds.durationSec, 0.2);
+
+          function toX(t) {
+            return padL + (Math.min(Math.max(t, 0), safeDur) / safeDur) * plotW;
+          }
+          function toY(deg) {
+            return padT + plotH - (Math.min(Math.max(deg, 0), 185) / 185) * plotH;
+          }
+
+          var parts = [];
+          [0, 45, 90, 135, 180].forEach(function (deg) {
+            var y = toY(deg).toFixed(1);
+            parts.push('<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="#E2E8F0" stroke-width="1"/>');
+            parts.push('<text x="' + (padL - 8) + '" y="' + (Number(y) + 4) + '" text-anchor="end" fill="#94A3B8" font-size="11" font-family="JetBrains Mono, monospace">' + deg + "°</text>");
+          });
+
+          for (var i = 0; i <= 5; i++) {
+            var t = (safeDur * i) / 5;
+            var x = toX(t).toFixed(1);
+            parts.push('<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (padT + plotH) + '" stroke="#F1F5F9" stroke-width="1"/>');
+            parts.push('<text x="' + x + '" y="' + (H - 10) + '" text-anchor="middle" fill="#64748B" font-size="11" font-family="JetBrains Mono, monospace">' + t.toFixed(1) + "s</text>");
+          }
+
+          state.chartJoints.forEach(function (j) {
+            var sides = state.sideFilter === "both" ? ["left", "right"] : [state.sideFilter];
+            sides.forEach(function (s) {
+              var d = "";
+              ds.frames.forEach(function (f, idx) {
+                var px = toX(f.timestampSec).toFixed(1);
+                var py = toY(f.angles[j][s]).toFixed(1);
+                d += (idx === 0 ? "M " : " L ") + px + " " + py;
+              });
+              var color = s === "left" ? JOINT_META[j].colorLeft : JOINT_META[j].colorRight;
+              var dash = s === "right" && state.sideFilter === "both" ? ' stroke-dasharray="5 4"' : "";
+              parts.push('<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"' + dash + "/>");
+            });
+          });
+
+          var phX = toX(state.currentTimeSec).toFixed(1);
+          parts.push('<line id="svgHoverLine" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + plotH) + '" stroke="#94A3B8" stroke-width="1" stroke-dasharray="3 3" style="display:none"/>');
+          parts.push('<line id="svgPlayheadLine" x1="' + phX + '" y1="' + padT + '" x2="' + phX + '" y2="' + (padT + plotH) + '" stroke="#0B1F3A" stroke-width="2"/>');
+          parts.push('<circle id="svgPlayheadDot" cx="' + phX + '" cy="' + padT + '" r="4" fill="#0B1F3A"/>');
+
+          svg.innerHTML = parts.join("");
+        }
+
+        function renderDiagnosticReport() {
+          var diag = buildBiomechanicsDiagnosis(state.params, currentStudioDataset);
+          document.getElementById("reportMovementName").textContent = diag.movementName;
+          document.getElementById("reportOverallSummary").textContent = diag.overallSummary;
+
+          var charList = document.getElementById("reportCharacteristics");
+          charList.innerHTML = "";
+          diag.characteristics.forEach(function (txt, idx) {
+            var li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.gap = "10px";
+            li.innerHTML =
+              '<span class="mono" style="font-size:12px;font-weight:700;color:var(--blue-700);">0' +
+              (idx + 1) +
+              ".</span><span>" +
+              txt +
+              "</span>";
+            charList.appendChild(li);
+          });
+
+          var evalBody = document.getElementById("reportJointEvalBody");
+          evalBody.innerHTML = "";
+          diag.jointEvaluations.forEach(function (ev) {
+            var cls = ev.status === "양호" ? "status-good" : ev.status === "주의" ? "status-warn" : "status-fix";
+            var sym = ev.status === "양호" ? "● 양호" : ev.status === "주의" ? "▲ 주의" : "✖ 개선필요";
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+              '<td style="padding-left:18px;font-weight:700;color:var(--navy-900);white-space:nowrap;">' +
+              ev.jointName +
+              " · " +
+              ev.side +
+              "</td>" +
+              '<td class="' +
+              cls +
+              '" style="white-space:nowrap;">' +
+              sym +
+              "</td>" +
+              '<td class="mono" style="white-space:nowrap;color:var(--slate-700);">' +
+              ev.measuredRom +
+              "</td>" +
+              '<td style="color:var(--slate-700);min-width:200px;">' +
+              ev.finding +
+              "</td>" +
+              '<td style="padding-right:18px;color:var(--slate-700);min-width:200px;">' +
+              ev.recommendation +
+              "</td>";
+            evalBody.appendChild(tr);
+          });
+
+          var drillsGrid = document.getElementById("reportDrillsGrid");
+          drillsGrid.innerHTML = "";
+          diag.improvements.forEach(function (imp) {
+            var box = document.createElement("div");
+            box.className = "drill-box";
+            box.innerHTML =
+              '<div><div class="mono" style="font-size:11px;color:var(--slate-500);">우선순위: <strong style="color:var(--navy-900);">' +
+              imp.priority +
+              '</strong></div><h4 style="margin:6px 0 8px;font-size:15px;font-weight:800;color:var(--navy-900);">' +
+              imp.title +
+              '</h4><p style="margin:0;font-size:13px;color:var(--slate-600);line-height:1.55;">' +
+              imp.description +
+              '</p></div><div style="padding-top:12px;border-top:1px solid var(--slate-200);">' +
+              '<div style="font-size:12px;font-weight:700;color:var(--blue-700);">추천 교정 드릴</div>' +
+              '<p style="margin:4px 0 0;font-size:12px;color:var(--slate-700);line-height:1.55;">' +
+              imp.drill +
+              "</p></div>";
+            drillsGrid.appendChild(box);
+          });
+        }
+
+        function launchPreset(presetId) {
+          var meta = getPresetMeta(presetId);
+          state.homePresetId = meta.id;
+          state.params = Object.assign({}, meta.defaultParams);
+          state.currentTimeSec = 0;
+          state.isPlaying = true;
+          switchTab("simulation");
+        }
+
+        function openSessionInStudio(sess) {
+          state.homePresetId = sess.params.presetId;
+          state.params = Object.assign({}, sess.params);
+          state.currentTimeSec = 0;
+          state.isPlaying = true;
+          switchTab("simulation");
+        }
+
+        function renderCompareHistory() {
+          var wrap = document.getElementById("compareHistoryContainer");
+          if (state.sessions.length === 0) {
+            wrap.innerHTML =
+              '<div class="card empty-box" style="max-width:560px;margin:32px auto;">' +
+              '<h2 style="margin:0;font-size:20px;font-weight:800;color:var(--navy-900);">저장된 시뮬레이션 기록이 없습니다</h2>' +
+              '<p style="margin:10px 0 20px;font-size:14px;color:var(--slate-600);">동작 시뮬레이션에서 스포츠 동작을 실행하고 저장하면 기록이 누적되며, 서로 다른 자세 조건의 ROM과 각도를 비교할 수 있습니다.</p>' +
+              '<button type="button" class="btn btn-primary" id="cmpEmptyStartBtn">첫 시뮬레이션 시작하기</button>' +
+              "</div>";
+            document.getElementById("cmpEmptyStartBtn").addEventListener("click", function () {
+              launchPreset(state.homePresetId);
+            });
+            return;
+          }
+
+          var sessA = state.sessions.find(function (s) { return s.id === state.compareAId; }) || state.sessions[0];
+          var sessB =
+            state.sessions.find(function (s) { return s.id === state.compareBId; }) ||
+            state.sessions.find(function (s) { return s.id !== sessA.id; }) ||
+            null;
+          state.compareAId = sessA.id;
+          if (sessB) state.compareBId = sessB.id;
+
+          var compareHtml = '<div class="card" style="padding:24px;display:flex;flex-direction:column;gap:20px;">' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--slate-100);">' +
+            '<div><h2 style="margin:0;font-size:18px;font-weight:800;color:var(--navy-900);">시뮬레이션 기록 비교 분석</h2>' +
+            '<p style="margin:4px 0 0;font-size:12px;color:var(--slate-500);">두 개의 시뮬레이션 세션을 선택하여 진행률(0~100%)별 관절 각도와 ROM 변화를 비교합니다.</p></div>';
+
+          if (state.sessions.length >= 2) {
+            compareHtml +=
+              '<div style="display:flex;flex-wrap:wrap;gap:12px;">' +
+              '<label style="font-size:12px;"><span style="display:block;font-weight:700;color:var(--navy-900);margin-bottom:4px;">기준 기록 A (실선)</span>' +
+              '<select id="selectCompareA" class="select-input">' +
+              state.sessions.map(function (s) {
+                return '<option value="' + s.id + '"' + (s.id === sessA.id ? " selected" : "") + ">" + s.title + " · " + new Date(s.createdAt).toLocaleDateString("ko-KR") + "</option>";
+              }).join("") +
+              "</select></label>" +
+              '<label style="font-size:12px;"><span style="display:block;font-weight:700;color:var(--cyan-600);margin-bottom:4px;">비교 기록 B (점선)</span>' +
+              '<select id="selectCompareB" class="select-input">' +
+              state.sessions.map(function (s) {
+                return '<option value="' + s.id + '"' + (sessB && s.id === sessB.id ? " selected" : "") + ">" + s.title + " · " + new Date(s.createdAt).toLocaleDateString("ko-KR") + "</option>";
+              }).join("") +
+              "</select></label></div>";
+          }
+          compareHtml += "</div>";
+
+          if (state.sessions.length < 2) {
+            compareHtml +=
+              '<div style="padding:24px;background:var(--slate-50);border:1px solid var(--slate-200);border-radius:10px;text-align:center;">' +
+              '<p style="margin:0;font-size:14px;font-weight:700;color:var(--navy-900);">기록 비교를 위해 2개 이상의 시뮬레이션 기록이 필요합니다</p>' +
+              '<p style="margin:6px 0 0;font-size:12px;color:var(--slate-500);">다른 자세 조건(예: 상체 전경 편차 또는 좌우 불균형 적용)으로 한 번 더 시뮬레이션을 저장하면 비교할 수 있습니다.</p></div>';
+          } else {
+            var dsA = generateDataset(sessA.params);
+            var dsB = generateDataset(sessB.params);
+            var cw = 880, ch = 240, pL = 44, pR = 20, pT = 18, pB = 32;
+            var pw = cw - pL - pR, ph = ch - pT - pB;
+
+            function buildNormPath(ds) {
+              var dur = Math.max(ds.durationSec, 0.1);
+              return ds.frames.map(function (f, idx) {
+                var x = (pL + (f.timestampSec / dur) * pw).toFixed(1);
+                var y = (pT + ph - (Math.min(185, Math.max(0, f.angles[state.compareJoint][state.compareSide])) / 185) * ph).toFixed(1);
+                return (idx === 0 ? "M " : "L ") + x + " " + y;
+              }).join(" ");
+            }
+
+            var svgParts = [];
+            [0, 45, 90, 135, 180].forEach(function (deg) {
+              var y = (pT + ph - (deg / 185) * ph).toFixed(1);
+              svgParts.push('<line x1="' + pL + '" y1="' + y + '" x2="' + (cw - pR) + '" y2="' + y + '" stroke="#E2E8F0" stroke-width="1"/>');
+              svgParts.push('<text x="' + (pL - 8) + '" y="' + (Number(y) + 4) + '" text-anchor="end" fill="#94A3B8" font-size="11" font-family="JetBrains Mono, monospace">' + deg + "°</text>");
+            });
+            [0, 25, 50, 75, 100].forEach(function (pct) {
+              var x = (pL + (pct / 100) * pw).toFixed(1);
+              svgParts.push('<text x="' + x + '" y="' + (ch - 8) + '" text-anchor="middle" fill="#64748B" font-size="11" font-family="JetBrains Mono, monospace">' + pct + "%</text>");
+            });
+            svgParts.push('<path d="' + buildNormPath(dsA) + '" fill="none" stroke="#0B1F3A" stroke-width="2.5" stroke-linejoin="round"/>');
+            svgParts.push('<path d="' + buildNormPath(dsB) + '" fill="none" stroke="#0891B2" stroke-width="2.5" stroke-dasharray="6 4" stroke-linejoin="round"/>');
+
+            compareHtml +=
+              '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">' +
+              '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+              CHART_JOINTS.map(function (j) {
+                return '<button type="button" class="btn btn-outline btn-sm cmp-joint-btn' + (state.compareJoint === j ? " active" : "") + '" data-joint="' + j + '">' + JOINT_META[j].labelKo + "</button>";
+              }).join("") +
+              '</div><div class="segmented">' +
+              '<button type="button" class="seg-btn cmp-side-btn' + (state.compareSide === "left" ? " active" : "") + '" data-side="left">좌측</button>' +
+              '<button type="button" class="seg-btn cmp-side-btn' + (state.compareSide === "right" ? " active" : "") + '" data-side="right">우측</button>' +
+              "</div></div>" +
+              '<div style="border:1px solid var(--slate-200);border-radius:10px;padding:16px;background:var(--slate-50);">' +
+              '<div style="display:flex;flex-wrap:wrap;gap:18px;font-size:12px;margin-bottom:10px;">' +
+              '<span style="font-weight:700;color:var(--navy-900);">━━ 기록 A: ' + sessA.title + "</span>" +
+              '<span style="font-weight:700;color:var(--cyan-600);">┄┄ 기록 B: ' + sessB.title + "</span></div>" +
+              '<svg viewBox="0 0 ' + cw + " " + ch + '" style="width:100%;height:auto;display:block;">' + svgParts.join("") + "</svg></div>" +
+              '<div class="data-table-wrap" style="border:1px solid var(--slate-200);border-radius:10px;"><table><thead><tr style="background:var(--slate-50);">' +
+              '<th style="padding-left:16px;">관절</th><th class="num-right">A 좌 ROM</th><th class="num-right">B 좌 ROM</th><th class="num-right">좌 변화(Δ)</th><th class="num-right">A 우 ROM</th><th class="num-right">B 우 ROM</th><th class="num-right" style="padding-right:16px;">비대칭(A → B)</th>' +
+              "</tr></thead><tbody>" +
+              CHART_JOINTS.map(function (j) {
+                var a = dsA.summary.find(function (x) { return x.joint === j; });
+                var b = dsB.summary.find(function (x) { return x.joint === j; });
+                var dL = round1(b.leftRom - a.leftRom);
+                return (
+                  '<tr><td style="padding-left:16px;font-weight:700;color:var(--navy-900);">' + JOINT_META[j].labelKo + "</td>" +
+                  '<td class="num-right mono">' + a.leftRom.toFixed(1) + "°</td>" +
+                  '<td class="num-right mono" style="color:var(--cyan-600);font-weight:700;">' + b.leftRom.toFixed(1) + "°</td>" +
+                  '<td class="num-right mono" style="font-weight:700;color:' + (dL >= 0 ? "var(--emerald-700)" : "var(--amber-700)") + ';">' + (dL >= 0 ? "+" : "") + dL.toFixed(1) + "°</td>" +
+                  '<td class="num-right mono">' + a.rightRom.toFixed(1) + "°</td>" +
+                  '<td class="num-right mono" style="color:var(--cyan-600);font-weight:700;">' + b.rightRom.toFixed(1) + "°</td>" +
+                  '<td class="num-right mono" style="padding-right:16px;">' + a.asymmetryDeg.toFixed(1) + "° → " + b.asymmetryDeg.toFixed(1) + "°</td></tr>"
+                );
+              }).join("") +
+              "</tbody></table></div>";
+          }
+          compareHtml += "</div>";
+
+          var q = state.historyQuery.trim().toLowerCase();
+          var filtered = state.sessions.filter(function (s) {
+            return !q || s.title.toLowerCase().indexOf(q) !== -1;
+          });
+
+          var historyHtml =
+            '<div class="card" style="padding:24px;display:flex;flex-direction:column;gap:16px;">' +
+            '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--slate-100);">' +
+            '<div><h2 style="margin:0;font-size:18px;font-weight:800;color:var(--navy-900);">저장된 시뮬레이션 기록 (' + state.sessions.length + "건)</h2>" +
+            '<p style="margin:4px 0 0;font-size:12px;color:var(--slate-500);">이전 시뮬레이션 조건과 관절 각도 데이터를 다시 열거나 비교 대상으로 지정합니다.</p></div>' +
+            '<input type="text" id="historySearchInput" class="search-input" style="width:240px;" placeholder="종목 또는 시나리오 검색..." value="' + state.historyQuery.replace(/"/g, "&quot;") + '"/></div>' +
+            '<div class="data-table-wrap"><table><thead><tr><th>일시</th><th>시뮬레이션 조건</th><th class="num-right">길이</th><th class="num-right">무릎 ROM</th><th class="num-right">골반 ROM</th><th class="num-right">작업</th></tr></thead><tbody>' +
+            filtered.map(function (s) {
+              var ds = generateDataset(s.params);
+              var knee = ds.summary.find(function (x) { return x.joint === "knee"; });
+              var hip = ds.summary.find(function (x) { return x.joint === "hip"; });
+              var dt = new Date(s.createdAt).toLocaleString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+              var isA = state.compareAId === s.id;
+              var isB = state.compareBId === s.id;
+              return (
+                "<tr>" +
+                '<td class="mono" style="color:var(--slate-600);white-space:nowrap;">' + dt + "</td>" +
+                '<td><div style="font-weight:700;color:var(--navy-900);">' + s.title + '</div><div class="mono" style="font-size:11px;color:var(--slate-500);">깊이 ' + s.params.depthPct + "% · 상체 +" + s.params.trunkLeanBiasDeg + "° · 비대칭 " + s.params.asymmetryPct + "%</div></td>" +
+                '<td class="num-right mono">' + ds.durationSec.toFixed(1) + "s</td>" +
+                '<td class="num-right mono">' + knee.leftRom.toFixed(1) + "°</td>" +
+                '<td class="num-right mono">' + hip.leftRom.toFixed(1) + "°</td>" +
+                '<td class="num-right" style="white-space:nowrap;">' +
+                '<button type="button" class="btn btn-primary btn-sm hist-open-btn" data-id="' + s.id + '">열기</button> ' +
+                '<button type="button" class="btn btn-outline btn-sm hist-a-btn' + (isA ? " active" : "") + '" data-id="' + s.id + '">A</button> ' +
+                '<button type="button" class="btn btn-outline btn-sm hist-b-btn' + (isB ? " active" : "") + '" data-id="' + s.id + '">B</button> ' +
+                (state.confirmDeleteId === s.id
+                  ? '<button type="button" class="btn btn-danger btn-sm hist-del-confirm-btn" data-id="' + s.id + '">삭제 확인</button>'
+                  : '<button type="button" class="btn btn-outline btn-sm hist-del-btn" data-id="' + s.id + '">삭제</button>') +
+                "</td></tr>"
+              );
+            }).join("") +
+            "</tbody></table></div></div>";
+
+          wrap.innerHTML = state.activeTab === "compare" ? compareHtml + historyHtml : historyHtml + compareHtml;
+
+          // Wire events
+          var selA = document.getElementById("selectCompareA");
+          var selB = document.getElementById("selectCompareB");
+          if (selA) selA.addEventListener("change", function (e) { state.compareAId = e.target.value; renderCompareHistory(); });
+          if (selB) selB.addEventListener("change", function (e) { state.compareBId = e.target.value; renderCompareHistory(); });
+
+          wrap.querySelectorAll(".cmp-joint-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () { state.compareJoint = btn.getAttribute("data-joint"); renderCompareHistory(); });
+          });
+          wrap.querySelectorAll(".cmp-side-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () { state.compareSide = btn.getAttribute("data-side"); renderCompareHistory(); });
+          });
+          var searchEl = document.getElementById("historySearchInput");
+          if (searchEl) {
+            searchEl.addEventListener("input", function (e) {
+              state.historyQuery = e.target.value;
+              renderCompareHistory();
+              var nextInput = document.getElementById("historySearchInput");
+              if (nextInput) { nextInput.focus(); nextInput.setSelectionRange(state.historyQuery.length, state.historyQuery.length); }
+            });
+          }
+          wrap.querySelectorAll(".hist-open-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var s = state.sessions.find(function (x) { return x.id === btn.getAttribute("data-id"); });
+              if (s) openSessionInStudio(s);
+            });
+          });
+          wrap.querySelectorAll(".hist-a-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () { state.compareAId = btn.getAttribute("data-id"); renderCompareHistory(); });
+          });
+          wrap.querySelectorAll(".hist-b-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () { state.compareBId = btn.getAttribute("data-id"); renderCompareHistory(); });
+          });
+          wrap.querySelectorAll(".hist-del-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () { state.confirmDeleteId = btn.getAttribute("data-id"); renderCompareHistory(); });
+          });
+          wrap.querySelectorAll(".hist-del-confirm-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var id = btn.getAttribute("data-id");
+              state.sessions = state.sessions.filter(function (x) { return x.id !== id; });
+              state.confirmDeleteId = null;
+              persistSessions(state.sessions);
+              renderCompareHistory();
+            });
+          });
+        }
+
+        function initEventBindings() {
+          document.querySelectorAll("[data-nav]").forEach(function (el) {
+            el.addEventListener("click", function () {
+              switchTab(el.getAttribute("data-nav"));
+            });
+          });
+
+          document.getElementById("headerStartBtn").addEventListener("click", function () {
+            launchPreset(state.homePresetId);
+          });
+          document.getElementById("homeLaunchBtn").addEventListener("click", function () {
+            launchPreset(state.homePresetId);
+          });
+          document.getElementById("homeViewAllHistoryBtn").addEventListener("click", function () {
+            switchTab("history");
+          });
+          document.getElementById("goCompareFromStudioBtn").addEventListener("click", function () {
+            switchTab("compare");
+          });
+
+          document.getElementById("mobileMenuBtn").addEventListener("click", function () {
+            var drawer = document.getElementById("mobileDrawer");
+            var open = drawer.classList.toggle("open");
+            this.setAttribute("aria-expanded", open ? "true" : "false");
+          });
+
+          document.getElementById("studioStageViewport").addEventListener("click", function () {
+            state.isPlaying = !state.isPlaying;
+            updateStudioLiveFrame();
+          });
+
+          document.getElementById("playPauseBtn").addEventListener("click", function () {
+            state.isPlaying = !state.isPlaying;
+            updateStudioLiveFrame();
+          });
+          document.getElementById("resetPlayBtn").addEventListener("click", function () {
+            state.isPlaying = false;
+            state.currentTimeSec = 0;
+            updateStudioLiveFrame();
+          });
+          document.getElementById("prevFrameBtn").addEventListener("click", function () {
+            state.isPlaying = false;
+            var step = currentStudioDataset.durationSec / Math.max(1, currentStudioDataset.frames.length - 1);
+            state.currentTimeSec = Math.max(0, state.currentTimeSec - step);
+            updateStudioLiveFrame();
+          });
+          document.getElementById("nextFrameBtn").addEventListener("click", function () {
+            state.isPlaying = false;
+            var step = currentStudioDataset.durationSec / Math.max(1, currentStudioDataset.frames.length - 1);
+            state.currentTimeSec = Math.min(currentStudioDataset.durationSec, state.currentTimeSec + step);
+            updateStudioLiveFrame();
+          });
+          document.getElementById("timelineSlider").addEventListener("input", function (e) {
+            state.isPlaying = false;
+            state.currentTimeSec = Number(e.target.value);
+            updateStudioLiveFrame();
+          });
+
+          document.querySelectorAll(".rate-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              state.playbackRate = Number(btn.getAttribute("data-rate"));
+              document.querySelectorAll(".rate-btn").forEach(function (b) { b.classList.remove("active"); });
+              btn.classList.add("active");
+            });
+          });
+
+          document.getElementById("toggleSkeletonBtn").addEventListener("click", function () {
+            state.showSkeleton = !state.showSkeleton;
+            this.classList.toggle("active", state.showSkeleton);
+            updateStudioLiveFrame();
+          });
+          document.getElementById("toggleAnglesBtn").addEventListener("click", function () {
+            state.showAngles = !state.showAngles;
+            this.classList.toggle("active", state.showAngles);
+            updateStudioLiveFrame();
+          });
+          document.getElementById("toggleComBtn").addEventListener("click", function () {
+            state.showComLine = !state.showComLine;
+            this.classList.toggle("active", state.showComLine);
+            updateStudioLiveFrame();
+          });
+
+          function setSide(side) {
+            state.sideFilter = side;
+            document.querySelectorAll("#studioSideSegmented .seg-btn, #chartSideSegmented .seg-btn").forEach(function (b) {
+              b.classList.toggle("active", b.getAttribute("data-side") === side);
+            });
+            renderKinematicChart();
+            updateStudioLiveFrame();
+          }
+          document.querySelectorAll("#studioSideSegmented .seg-btn, #chartSideSegmented .seg-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () { setSide(btn.getAttribute("data-side")); });
+          });
+
+          // Parameter sliders
+          document.getElementById("sliderDepth").addEventListener("input", function (e) {
+            state.params.depthPct = Number(e.target.value);
+            renderSimulationStudio();
+          });
+          document.getElementById("sliderTrunk").addEventListener("input", function (e) {
+            state.params.trunkLeanBiasDeg = Number(e.target.value);
+            renderSimulationStudio();
+          });
+          document.getElementById("sliderAsym").addEventListener("input", function (e) {
+            state.params.asymmetryPct = Number(e.target.value);
+            renderSimulationStudio();
+          });
+          document.getElementById("sliderTempo").addEventListener("input", function (e) {
+            state.params.tempoSec = Number(e.target.value);
+            renderSimulationStudio();
+          });
+
+          // Scenarios
+          document.getElementById("scenarioIdealBtn").addEventListener("click", function () {
+            var base = getPresetMeta(state.params.presetId).defaultParams;
+            state.params = Object.assign({}, base, { trunkLeanBiasDeg: 3, asymmetryPct: 0 });
+            renderSimulationStudio();
+          });
+          document.getElementById("scenarioLeanBtn").addEventListener("click", function () {
+            state.params.trunkLeanBiasDeg = 22;
+            state.params.asymmetryPct = 4;
+            renderSimulationStudio();
+          });
+          document.getElementById("scenarioAsymBtn").addEventListener("click", function () {
+            state.params.trunkLeanBiasDeg = 8;
+            state.params.asymmetryPct = 22;
+            renderSimulationStudio();
+          });
+
+          // Save simulation record
+          document.getElementById("saveSimulationBtn").addEventListener("click", function () {
+            var meta = getPresetMeta(state.params.presetId);
+            var tags = [meta.nameKo];
+            if (state.params.trunkLeanBiasDeg >= 16) tags.push("전경 편차");
+            if (state.params.asymmetryPct >= 14) tags.push("좌우 불균형");
+            if (state.params.trunkLeanBiasDeg <= 6 && state.params.asymmetryPct <= 5) tags.push("표준 폼");
+
+            var newSess = {
+              id: "sim-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+              createdAt: new Date().toISOString(),
+              title: tags.join(" · "),
+              params: Object.assign({}, state.params)
+            };
+            state.sessions.unshift(newSess);
+            if (!state.compareAId) {
+              state.compareAId = newSess.id;
+            } else {
+              state.compareBId = state.compareAId;
+              state.compareAId = newSess.id;
+            }
+            persistSessions(state.sessions);
+
+            var toast = document.getElementById("saveToast");
+            toast.textContent = "시뮬레이션 기록이 저장되었습니다 (" + newSess.title + "). ‘기록 비교’ 메뉴에서 다른 기록과 비교할 수 있습니다.";
+            toast.style.display = "block";
+            setTimeout(function () { toast.style.display = "none"; }, 4000);
+          });
+
+          // SVG chart hover & click-to-seek
+          var svg = document.getElementById("kinematicSvg");
+          svg.addEventListener("mousemove", function (e) {
+            if (!currentStudioDataset) return;
+            var rect = svg.getBoundingClientRect();
+            var relX = ((e.clientX - rect.left) / rect.width) * 960;
+            var plotW = 960 - 46 - 20;
+            var clamped = Math.min(Math.max(relX - 46, 0), plotW);
+            var dur = Math.max(currentStudioDataset.durationSec, 0.2);
+            var targetT = (clamped / plotW) * dur;
+            var nearestIdx = 0;
+            var minDiff = Infinity;
+            currentStudioDataset.frames.forEach(function (f, i) {
+              var d = Math.abs(f.timestampSec - targetT);
+              if (d < minDiff) { minDiff = d; nearestIdx = i; }
+            });
+            state.chartHoverIdx = nearestIdx;
+            var hf = currentStudioDataset.frames[nearestIdx];
+            var hx = 46 + (hf.timestampSec / dur) * plotW;
+            var hl = document.getElementById("svgHoverLine");
+            if (hl) {
+              hl.setAttribute("x1", hx.toFixed(1));
+              hl.setAttribute("x2", hx.toFixed(1));
+              hl.style.display = "block";
+            }
+            renderChartHud(hf, true);
+          });
+          svg.addEventListener("mouseleave", function () {
+            state.chartHoverIdx = null;
+            var hl = document.getElementById("svgHoverLine");
+            if (hl) hl.style.display = "none";
+            if (currentStudioDataset) {
+              renderChartHud(findNearestFrame(currentStudioDataset.frames, state.currentTimeSec), false);
+            }
+          });
+          svg.addEventListener("click", function (e) {
+            if (!currentStudioDataset) return;
+            var rect = svg.getBoundingClientRect();
+            var relX = ((e.clientX - rect.left) / rect.width) * 960;
+            var plotW = 960 - 46 - 20;
+            var clamped = Math.min(Math.max(relX - 46, 0), plotW);
+            var dur = Math.max(currentStudioDataset.durationSec, 0.2);
+            state.isPlaying = false;
+            state.currentTimeSec = (clamped / plotW) * dur;
+            updateStudioLiveFrame();
+          });
+
+          // Download standalone index.html synchronously to preserve browser user-gesture activation
+          function triggerHtmlFileDownload(htmlText, btnEl) {
+            var blob = new Blob([htmlText], { type: "text/html;charset=utf-8" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "index.html";
+            a.rel = "noopener";
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function () { URL.revokeObjectURL(url); }, 2500);
+
+            if (btnEl) {
+              var span = btnEl.querySelector("span") || btnEl;
+              var origText = span.textContent;
+              span.textContent = "다운로드됨 ✓";
+              setTimeout(function () { span.textContent = origText; }, 2200);
+            }
+          }
+
+          document.querySelectorAll(".download-html-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var htmlToSave = CACHED_SOURCE_HTML || PRISTINE_HTML_SNAPSHOT;
+              triggerHtmlFileDownload(htmlToSave, this);
+            });
+          });
+
+          document.querySelectorAll(".copy-html-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+              var clickedBtn = this;
+              var htmlToCopy = CACHED_SOURCE_HTML || PRISTINE_HTML_SNAPSHOT;
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(htmlToCopy).then(function () {
+                  var span = clickedBtn.querySelector("span") || clickedBtn;
+                  var orig = span.textContent;
+                  span.textContent = "HTML 복사됨 ✓";
+                  setTimeout(function () { span.textContent = orig; }, 2200);
+                }).catch(function () {});
+              }
+            });
+          });
+        }
+
+        // Main animation loop (handles Home preview & Simulation Studio playback)
+        var lastTickMs = performance.now();
+        var homeStartMs = lastTickMs;
+
+        function animationLoop(nowMs) {
+          var dt = (nowMs - lastTickMs) / 1000;
+          lastTickMs = nowMs;
+
+          if (state.activeTab === "home") {
+            var homeCanvas = document.getElementById("homePreviewCanvas");
+            var preset = getPresetMeta(state.homePresetId);
+            var f = computeSimulatedFrame(preset.defaultParams, (nowMs - homeStartMs) / 1000);
+            drawStage(homeCanvas, f, { showSkeleton: true, showAngles: true, showComLine: true, sideFilter: "both" });
+          } else if (state.activeTab === "simulation" && state.isPlaying && currentStudioDataset) {
+            state.currentTimeSec += dt * state.playbackRate;
+            if (state.currentTimeSec >= currentStudioDataset.durationSec) {
+              state.currentTimeSec = 0;
+            }
+            updateStudioLiveFrame();
+          }
+
+          requestAnimationFrame(animationLoop);
+        }
+
+        // Bootstrap
+        state.sessions = loadSessions();
+        if (state.sessions.length > 0) {
+          state.compareAId = state.sessions[0].id;
+          if (state.sessions.length > 1) state.compareBId = state.sessions[1].id;
+        }
+        initEventBindings();
+        renderHome();
+        requestAnimationFrame(animationLoop);
+      })();
+    </script>
+  </body>
+</html>
